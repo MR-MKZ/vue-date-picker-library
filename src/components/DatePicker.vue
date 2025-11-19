@@ -6,6 +6,15 @@
 //     { id: 4 },
 //     { id: 5 },
 // ]
+const days = [
+    { id: 1, day: "شنبه" },
+    { id: 2, day: "1شنبه" },
+    { id: 3, day: "2شنبه" },
+    { id: 4, day: "3شنبه" },
+    { id: 5, day: "4شنبه" },
+    { id: 5, day: "5شنبه" },
+    { id: 5, day: "جمعه" },
+]
 </script>
 
 <template>
@@ -26,7 +35,25 @@
 
 
     <div class="container">
-
+        <header class="container__header">
+            <p class="container__header--title">تاریخ را انتخاب نمایید</p>
+        </header>
+        <div class="container__content">
+            <div class="container__content__filter">
+                <p class="container__content__filter--item">شمسی</p>
+                <p class="container__content__filter--item">فروردین</p>
+                <p class="container__content__filter--item">1400</p>
+            </div>
+            <div class="container__content__weekdays">
+                <span class="container__content__weekdays--day" v-for="item in days" :key="item.id">
+                    {{ item.day }}
+                </span>
+            </div>
+            <div class="container__content__days">
+                <div class="container__content__days--day">۴</div>
+            </div>
+            <button class="container__content--button">تایید</button>
+        </div>
     </div>
 </template>
 
@@ -79,4 +106,85 @@
 //         }
 //     }
 // }
+
+.container {
+    background-color: $gray-100;
+    width: 360px;
+    height: 448px;
+    padding: 24px 16px 16px 16px;
+    border-radius: 8px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    &__header {
+        &--title {
+            font-size: 12px;
+            line-height: 16px;
+            color: $text-light-base;
+            text-align: center;
+        }
+    }
+
+    &__content {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+
+        &__filter {
+            display: flex;
+            justify-content: space-between;
+            height: 24px;
+
+            &--item {
+                font-size: 12px;
+                line-height: 16px;
+                color: $text-light-base;
+            }
+        }
+
+        &__weekdays {
+            height: 16px;
+            display: flex;
+            justify-content: space-between;
+            background-color: $bg-light-default;
+            border-radius: 4px;
+            padding-inline: 2px;
+
+            &--day {
+                font-size: 12px;
+                line-height: 16px;
+                color: $text-light-base;
+            }
+        }
+
+        &__days {
+            display: grid;
+            justify-content: space-between;
+            grid-template-columns: repeat(7, 32px);
+            grid-template-rows: repeat(5, 32px);
+            gap: 16px;
+
+            &--day {
+                border-radius: 10px;
+                font-size: 14px;
+                color: $text-light-base;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+
+        &--button {
+            background-color: $primary-600;
+            height: 48px;
+            padding-inline: 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            color: white;
+        }
+    }
+}
 </style>
