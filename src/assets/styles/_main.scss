@@ -1,0 +1,7 @@
+// import abtracts folder styles
+@forward "./abstracts/variables";
+@forward "./abstracts/fonts";
+
+// import base folder styles
+@forward "./base/reset";
+@forward "./base/typography";
