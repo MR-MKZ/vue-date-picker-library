@@ -7,5 +7,5 @@ import DatePicker from "./components/DatePicker.vue";
 </template>
 
 <style lang="scss">
-  ///
+@use "./assets/styles/global.scss";
 </style>
