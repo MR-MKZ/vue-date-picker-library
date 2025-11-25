@@ -35,6 +35,6 @@ const formatDate = (date) => {
 <template>
   <div class="container">
     <DesktopDatePicker :activeLang="activeLang" :months="months" :years="years" @date="formatDate" />
-    <MobileDatePicker :months="months" :years="years" />
+    <MobileDatePicker :months="months" :years="years" :activeLang="activeLang" />
   </div>
 </template>

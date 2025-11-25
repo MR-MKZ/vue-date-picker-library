@@ -1,6 +1,11 @@
 import { ref, computed } from "vue";
 
-export const createCalendarEngine = (adapter, initialYear, initialMonth) => {
+export const createCalendarEngine = (
+  adapter,
+  initialYear,
+  initialMonth,
+  prefixAndSuffix = true,
+) => {
   const year = ref(initialYear);
   const month = ref(initialMonth);
 
@@ -26,19 +31,23 @@ export const createCalendarEngine = (adapter, initialYear, initialMonth) => {
     const prev = adapter.getPreviousMonth(year.value, month.value);
     const daysInPrev = adapter.getDaysInMonth(prev.year, prev.month);
 
-    const prefix = firstWeekday;
-    for (let i = prefix - 1; i >= 0; i--) {
-      cells.push({ year: prev.year, month: prev.month, day: daysInPrev - i, current: false });
+    if (prefixAndSuffix) {
+      const prefix = firstWeekday;
+      for (let i = prefix - 1; i >= 0; i--) {
+        cells.push({ year: prev.year, month: prev.month, day: daysInPrev - i, current: false });
+      }
     }
 
     for (let day = 1; day <= daysInMonth; day++) {
       cells.push({ year: year.value, month: month.value, day, current: true });
     }
 
-    const nextMonth = adapter.getNextMonth(year.value, month.value);
-    const remainingDayOftheMonth = 35 - cells.length;
-    for (let i = 1; i <= remainingDayOftheMonth; i++) {
-      cells.push({ year: nextMonth.year, month: nextMonth.month, day: i, current: false });
+    if (prefixAndSuffix) {
+      const nextMonth = adapter.getNextMonth(year.value, month.value);
+      const remainingDayOftheMonth = 35 - cells.length;
+      for (let i = 1; i <= remainingDayOftheMonth; i++) {
+        cells.push({ year: nextMonth.year, month: nextMonth.month, day: i, current: false });
+      }
     }
 
     return cells.slice(0, 35);
