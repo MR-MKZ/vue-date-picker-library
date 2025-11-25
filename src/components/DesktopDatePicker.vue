@@ -2,12 +2,12 @@
 import { ref, computed, watch, reactive } from "vue";
 import { createCalendarEngine } from "@/composables/useCalenderEngine";
 import { langDates } from "@/constants/langDates";
+import { englishToPersianDigit } from "@/utils/replaceNumbers";
+import useGetToday from "@/composables/useGetToday";
 import ArrowIcon from "@/components/icons/arrow-icon.vue";
 import CloseIcon from "@/components/icons/close-icon.vue";
 import chevronIcon from "@/components/icons/chevron-icon.vue";
 import BaseButton from "@/components/ui/base-button.vue";
-import { englishToPersianDigit, persianToEnglish } from "@/utils/replaceNumbers";
-import useGetToday from "@/composables/useGetToday";
 
 const props = defineProps({
   activeLang: { type: String, required: true },
@@ -18,7 +18,7 @@ const props = defineProps({
 const today = useGetToday();
 const showMonths = ref(false);
 const showyears = ref(false);
-const todayDate = reactive({ year: persianToEnglish(today.year), month: persianToEnglish(today.month), day: persianToEnglish(today.day) })
+const todayDate = reactive({ year: today.year, month: today.month, day: today.day })
 
 const adapter = computed(() => langDates.langs[props.activeLang].adaptor);
 const weekdays = computed(() => langDates.langs[props.activeLang].weekdays);
@@ -89,11 +89,13 @@ const clickHandler = () => {
       </span>
     </div>
     <div class="content__days" v-if="!showMonths && !showyears">
-      <div class="content__days--day" v-for="(cell, i) in engine.grid.value" :class="{
-        selected: todayDate.day == cell.day && cell.current,
+      <div class="content__days__day" v-for="(cell, i) in engine.grid.value" :class="{
+        selected: todayDate.day === cell.day && cell.current && today.month === cell.month, 'today': todayDate.day === cell.day && today.month === cell.month && cell.current,
         'not-current': !cell.current,
       }" :key="i" @click="handleDayClick(cell)">
         {{ englishToPersianDigit(cell.day) }}
+        <span class="content__days__day--today"
+          v-if="today.day === cell.day && today.month === cell.month && cell.current">امروز</span>
       </div>
     </div>
     <div class="content__months" v-if="showMonths">
@@ -103,7 +105,7 @@ const clickHandler = () => {
       </div>
     </div>
     <div class="content__years" v-if="showyears">
-      <div class="content__years--year" v-for="year in years" :key="year" :class="{ selected: todayDate.year == year }"
+      <div class="content__years--year" v-for="year in years" :key="year" :class="{ selected: todayDate.year === year }"
         @click="handleYearClick(year)">
         {{ englishToPersianDigit(year) }}
       </div>

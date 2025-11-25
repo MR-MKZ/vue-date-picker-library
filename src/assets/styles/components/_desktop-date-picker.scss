@@ -118,30 +118,40 @@
     grid-template-rows: repeat(5, 32px);
     gap: 16px;
 
-    &--day {
+    &__day {
       border-radius: 10px;
+      position: relative;
       font-size: 14px;
       color: $text-light-base;
       cursor: pointer;
       @include flex();
       transition: all 0.2s ease;
+      &:hover {
+        background-color: $primary-200;
+      }
+
+      &--today {
+        font-size: 10px;
+        color: $text-light-info;
+        position: absolute;
+        bottom: 1px;
+        left: 50%;
+        transform: translateX(-50%);
+        line-height: 12px;
+      }
 
       &.selected {
         background-color: $primary-main;
         color: $text-dark-primary;
-      }
 
-      &.selected:hover {
-        background-color: $primary-main;
-      }
+        &:hover {
+          background-color: $primary-main;
+        }
 
-      &.not-current {
-        color: $text-light-base2;
+        & > * {
+          color: $text-dark-primary;
+        }
       }
-    }
-
-    &--day:hover {
-      background-color: $primary-200;
     }
   }
 }

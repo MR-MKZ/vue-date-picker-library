@@ -1,6 +1,6 @@
 <script setup>
 import { computed, nextTick, onMounted, ref } from "vue";
-import englishToPersianDigit from "@/utils/englishToPersianDigit";
+import { englishToPersianDigit } from "@/utils/replaceNumbers";
 
 const props = defineProps({
   months: { type: Array, required: true },
@@ -40,32 +40,18 @@ onMounted(() => {
 <template>
   <div class="calender">
     <div class="calender__block">
-      <span
-        class="calender__block--text"
-        :class="{ selected: currentDay === day }"
-        v-for="day in days"
-        :key="day"
-      >
+      <span class="calender__block--text" :class="{ selected: currentDay === day }" v-for="day in days" :key="day">
         {{ englishToPersianDigit(day) }}
       </span>
     </div>
     <div class="calender__block">
-      <span
-        class="calender__block--text"
-        :class="{ selected: currentMonth === index + 1 }"
-        v-for="(month, index) in months"
-        :key="month"
-      >
+      <span class="calender__block--text" :class="{ selected: currentMonth === index + 1 }"
+        v-for="(month, index) in months" :key="month">
         {{ month }}
       </span>
     </div>
     <div class="calender__block">
-      <span
-        class="calender__block--text"
-        :class="{ selected: currentYear === year }"
-        v-for="year in years"
-        :key="year"
-      >
+      <span class="calender__block--text" :class="{ selected: currentYear === year }" v-for="year in years" :key="year">
         {{ englishToPersianDigit(year) }}
       </span>
     </div>
