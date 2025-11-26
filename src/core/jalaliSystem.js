@@ -1,26 +1,20 @@
-import { jalaliToGregorian, isJalaliLeap } from "@/utils/jalaliMath.js";
+import moment from "moment-jalaali";
 
-const getDaysInMonth = (year, month) => {
-  if (month >= 1 && month <= 6) return 31;
-  if (month >= 7 && month <= 11) return 30;
-  return isJalaliLeap(year) ? 30 : 29;
-};
+const getDaysInMonth = (year, month) => moment.jDaysInMonth(year, month - 1);
 
 const getFirstWeekday = (year, month) => {
-  const g = jalaliToGregorian(year, month, 1);
-  const d = new Date(Date.UTC(g.gy, g.gm - 1, g.gd));
-  const jsDay = d.getUTCDay();
-  return (jsDay + 1) % 7;
+  const m = moment(`${year}-${month}-01`, "jYYYY-jMM-jDD");
+  return (m.day() + 1) % 7;
 };
 
 const getPreviousMonth = (year, month) => {
-  if (month === 1) return { year: year - 1, month: 12 };
-  return { year, month: month - 1 };
+  const m = moment(`${year}-${month}-01`, "jYYYY-jMM-jDD").subtract(1, "jMonth");
+  return { year: m.jYear(), month: m.jMonth() + 1 };
 };
 
 const getNextMonth = (year, month) => {
-  if (month === 12) return { year: year + 1, month: 1 };
-  return { year, month: month + 1 };
+  const m = moment(`${year}-${month}-01`, "jYYYY-jMM-jDD").add(1, "jMonth");
+  return { year: m.jYear(), month: m.jMonth() + 1 };
 };
 
 export const jalaliAdapter = {

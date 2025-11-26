@@ -50,7 +50,7 @@ export const createCalendarEngine = (
       }
     }
 
-    return cells.slice(0, 35);
+    return cells.slice(0, 37);
   });
 
   return {
