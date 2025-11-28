@@ -1,3 +1,4 @@
+import enabledDate from "@/utils/enabledDate";
 import { ref, computed } from "vue";
 
 export const createCalendarEngine = (
@@ -5,6 +6,7 @@ export const createCalendarEngine = (
   initialYear,
   initialMonth,
   prefixAndSuffix = true,
+  limits,
 ) => {
   const year = ref(initialYear);
   const month = ref(initialMonth);
@@ -34,19 +36,38 @@ export const createCalendarEngine = (
     if (prefixAndSuffix) {
       const prefix = firstWeekday;
       for (let i = prefix - 1; i >= 0; i--) {
-        cells.push({ year: prev.year, month: prev.month, day: daysInPrev - i, current: false });
+        const day = daysInPrev - i;
+        cells.push({
+          year: prev.year,
+          month: prev.month,
+          day,
+          current: false,
+          enable: enabledDate(prev.year, prev.month, day, limits, adapter),
+        });
       }
     }
 
     for (let day = 1; day <= daysInMonth; day++) {
-      cells.push({ year: year.value, month: month.value, day, current: true });
+      cells.push({
+        year: year.value,
+        month: month.value,
+        day,
+        current: true,
+        enable: enabledDate(year.value, month.value, day, limits, adapter),
+      });
     }
 
     if (prefixAndSuffix) {
       const nextMonth = adapter.getNextMonth(year.value, month.value);
-      const remainingDayOftheMonth = 35 - cells.length;
-      for (let i = 1; i <= remainingDayOftheMonth; i++) {
-        cells.push({ year: nextMonth.year, month: nextMonth.month, day: i, current: false });
+      const remaining = 35 - cells.length;
+      for (let i = 1; i <= remaining; i++) {
+        cells.push({
+          year: nextMonth.year,
+          month: nextMonth.month,
+          day: i,
+          current: false,
+          enable: enabledDate(nextMonth.year, nextMonth.month, i, limits, adapter),
+        });
       }
     }
 
