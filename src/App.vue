@@ -1,12 +1,12 @@
 <script setup>
 import { ref } from "vue";
 import DatePicker from "./components/DatePicker.vue";
-const date = ref("")
-const changeHandler = (data) => date.value = data
+const date = ref("");
+const changeHandler = (data) => (date.value = data);
 </script>
 
 <template>
-  <date-picker @formated-date="changeHandler" format="YYYY/MM/DD" :range="true" />
+  <date-picker @formated-date="changeHandler" format="YYYY/MM/DD" mode="single" />
   <span>{{ date }}</span>
 </template>
 

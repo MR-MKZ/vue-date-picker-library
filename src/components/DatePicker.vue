@@ -1,41 +1,73 @@
 <script setup>
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { langDates } from "@/constants/langDates";
-import MobileDatePicker from "@/components/MobileDatePicker.vue";
-import DesktopDatePicker from "@/components/DesktopDatePicker.vue";
+import { createCalendarEngine } from "@/composables/useCalenderEngine";
+import useGetToday from "@/composables/useGetToday";
 import dateFormatter from "@/utils/dateFormatter";
+import MobileDatePicker from "@/components/mobile/MobileDatePicker.vue";
+import DesktopDatePicker from "@/components/desktop/DesktopDatePicker.vue";
 
 const props = defineProps({
-  startYear: { type: Number, default: 1354 },
-  endYear: { type: Number, default: 1414 },
-  yearRange: { type: Number, default: 50 },
   format: { type: String, default: "YYYY-MM-DD" },
-  range: Boolean
+  min: { type: String, default: "1400/01/01" },
+  max: { type: String, default: "1410/01/15" },
+  mode: {
+    type: String,
+    default: "single",
+    validator(value) {
+      return ["range", "multiple", "single"].includes(value);
+    },
+  },
 });
 
+const emit = defineEmits(["formatedDate", "close", "open", "changed"]);
+
 const activeLang = ref("fa");
+const showCalender = ref(true);
+const today = useGetToday();
+
+const adapter = computed(() => langDates.langs[activeLang.value].adaptor);
+const engine = createCalendarEngine(adapter.value, today.year, today.month, true, [
+  props.min,
+  props.max,
+]);
 
 const years = computed(() => {
-  const start = props.startYear;
-  const end = props.endYear !== null ? props.endYear : props.startYear + props.yearRange - 1;
   const arr = [];
-  for (let y = start; y <= end; y++) arr.push(y);
+  const start = props.min.split("/")[0];
+  const end = props.max.split("/")[0];
+  for (let year = start; year <= end; year++) arr.push(year);
   return arr;
 });
 
 const months = computed(() => langDates.langs[activeLang.value].months);
 
-const emit = defineEmits(["formatedDate"])
-
 const formatDate = (date) => {
-  const formatedDate = dateFormatter(date, props.format);
-  emit("formatedDate", formatedDate)
-}
+  showCalender.value = false;
+  emit("formatedDate", dateFormatter(date, props.format));
+};
+
+watch([showCalender], () => emit(showCalender.value ? "open" : "close"));
 </script>
 
 <template>
-  <div class="container">
-    <DesktopDatePicker :activeLang="activeLang" :months="months" :years="years" @date="formatDate" @rangeDate="formatDate" :range="range" />
-    <MobileDatePicker :months="months" :years="years" :activeLang="activeLang" />
+  <div class="container" v-if="showCalender">
+    <DesktopDatePicker
+      :activeLang="activeLang"
+      :months="months"
+      :years="years"
+      @date="formatDate"
+      @changed="$emit('changed')"
+      :mode="mode"
+      :engine="engine"
+      :todayDate="today"
+    />
+    <MobileDatePicker
+      :months="months"
+      :years="years"
+      :activeLang="activeLang"
+      :engine="engine"
+      :today="today"
+    />
   </div>
 </template>
