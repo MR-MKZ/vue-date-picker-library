@@ -3,7 +3,6 @@ import { jalaliAdapter } from "@/core/jalaliSystem";
 const langDates = {
   langs: {
     fa: {
-      calendar: "jalali",
       adaptor: jalaliAdapter,
       weekdays: ["شنبه", "۱شنبه", "۲شنبه", "۳شنبه", "۴شنبه", "۵شنبه", "جمعه"],
       months: [
@@ -20,9 +19,6 @@ const langDates = {
         "بهمن",
         "اسفند",
       ],
-      translations: {
-        label: "شمسی",
-      },
     },
   },
 };
