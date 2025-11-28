@@ -1,44 +1,45 @@
-# .
+# moli-datepicker
 
-This template should help get you started developing with Vue 3 in Vite.
+> A vue responsive UI library to select jalali date and time
 
-## Recommended IDE Setup
+## Installation
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+### npm
 
-## Recommended Browser Setup
-
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd) 
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
+```bash
+npm install moli-datepicker --save
 ```
 
-### Compile and Hot-Reload for Development
+### Usage
 
-```sh
-npm run dev
+```vue
+<script setup>
+import MoliDatepicker from "moli-datepicker";
+const date = ref("");
+</script>
+
+<template>
+  <moli-datepicker v-model="date" />
+</template>
 ```
 
-### Compile and Minify for Production
+## 🎯 Common Props
 
-```sh
-npm run build
-```
+calender component accept these common props:
 
-### Lint with [ESLint](https://eslint.org/)
+| Prop     | Type      | Default                   | Description                 | Other options             |
+| -------- | --------- | ------------------------- | --------------------------- | ------------------------- |
+| `format` | `string`  | `"YYYY/MM/DD"`            | Format of the dates         | `YYYY.MM.DD` `YYYY-MM-DD` |
+| `min`    | `string`  | `1400/1/1`                | min age that calender shows | `any`                     |
+| `max`    | `string`  | `end of the current year` | max age that calender shows | `any`                     |
+| `mode`   | `string`  | `single`                  | change the mode of calender | `multiple` `range`        |
+| `assign` | `boolean` | `false`                   | assign to a input           | `true`                    |
 
-```sh
-npm run lint
-```
+## Built With
+
+- [Vue.js](https://vuejs.org/) - The Progressive JavaScript Framework.
+- [moment-jalaali](https://github.com/jalaali/moment-jalaali) - A Jalaali (Jalali, Persian, Khorshidi, Shamsi) calendar system plugin for moment.js.
+
+## Change log
+
+### 1.0.0 (2025-11-28)
