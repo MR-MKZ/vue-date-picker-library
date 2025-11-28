@@ -7,7 +7,6 @@ const adapters = {
     locale: "fa-IR-u-ca-persian",
     parse(date) {
       const formatter = new Intl.DateTimeFormat(this.locale, options);
-
       const dates = formatter
         .format(date)
         .split("/")
