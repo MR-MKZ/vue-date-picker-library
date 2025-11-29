@@ -23,9 +23,10 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["close", "open", "changed"]);
-const model = defineModel()
+const model = defineModel();
 
 const activeLang = ref("fa");
+const result = ref("");
 const showCalender = ref(props.assign ? true : false);
 const today = useGetToday();
 
@@ -37,16 +38,18 @@ const engine = createCalendarEngine(adapter.value, today.year, today.month, true
 ]);
 
 const years = computed(() => {
-  const yearsBetweenRanges = [];
-  const start = props.min.split("/")[0];
-  const end = props.max.split("/")[0];
-  for (let year = start; year <= end; year++) yearsBetweenRanges.push(Number(year));
-  return yearsBetweenRanges;
+  const out = [];
+  const start = Number(props.min.split("/")[0]);
+  const end = Number(props.max.split("/")[0]);
+  for (let y = start; y <= end; y++) out.push(y);
+  return out;
 });
 
 const formatDate = (date) => {
-  const formatted = dateFormatter(date, props.format)
-  model.value = formatted
+  if (props.mode === "single") result.value = dateFormatter(date, props.format);
+  else result.value = date;
+
+  model.value = result.value;
   showCalender.value = false;
 };
 
@@ -55,9 +58,29 @@ watch([showCalender], () => emit(showCalender.value ? "open" : "close"));
 
 <template>
   <div class="container" v-if="showCalender">
-    <desktop-datepicker :active-lang="activeLang" :months="months" :years="years" @date="formatDate"
-      @changed="$emit('changed')" :mode="mode" :engine="engine" :today-date="today" />
-    <mobile-datepicker :months="months" :years="years" :active-lang="activeLang" :engine="engine" :today="today" />
+    <desktop-datepicker
+      :active-lang="activeLang"
+      :months="months"
+      :years="years"
+      @date="formatDate"
+      @changed="$emit('changed')"
+      :mode="mode"
+      :engine="engine"
+      :today-date="today"
+    />
+    <mobile-datepicker
+      :months="months"
+      :showCalender="showCalender"
+      :years="years"
+      :active-lang="activeLang"
+      :engine="engine"
+      :today="today"
+    />
   </div>
-  <base-input @click="showCalender = true" v-if="!showCalender && !assign" :value="model" />
+  <base-input
+    v-if="!showCalender && !assign"
+    @click="showCalender = true"
+    :value="result"
+    :placeholder="result"
+  />
 </template>

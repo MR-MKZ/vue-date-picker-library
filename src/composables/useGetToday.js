@@ -19,7 +19,6 @@ const adapters = {
 
 const useGetToday = (locale = "fa") => {
   const adapter = adapters[locale];
-  if (!adapter) throw new Error(`Unsupported locale: ${locale}`);
   const today = new Date();
   return adapter.parse(today);
 };

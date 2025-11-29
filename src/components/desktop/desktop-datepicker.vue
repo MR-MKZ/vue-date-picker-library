@@ -69,8 +69,8 @@ const emit = defineEmits(["date", "changed"]);
 
 const clickHandler = () => {
   if (props.mode === "range") {
-    const { startYear, startMonth, startDay } = selectedRange.start;
-    const { endYear, endMonth, endDay } = selectedRange.end;
+    const { year: startYear, month: startMonth, day: startDay } = selectedRange.start;
+    const { year: endYear, month: endMonth, day: endDay } = selectedRange.end;
     emit("date", `${startYear}/${startMonth}/${startDay} | ${endYear}/${endMonth}/${endDay}`);
     return;
   }
@@ -85,17 +85,35 @@ const clickHandler = () => {
     <p class="header--title">تاریخ را انتخاب نمایید</p>
   </header>
   <div class="content">
-    <grid-filter :current-month-text="currentMonthText" :show-years="showYears" :show-months="showMonths" :today="today"
+    <grid-filter
+      :current-month-text="currentMonthText"
+      :show-years="showYears"
+      :show-months="showMonths"
+      :today="today"
       @update:showYears="(e) => ((showYears = e), (showMonths = !e))"
-      @update:showMonths="(e) => ((showYears = !e), (showMonths = e))" />
+      @update:showMonths="(e) => ((showYears = !e), (showMonths = e))"
+    />
     <div class="content__weekdays" v-if="!showMonths && !showYears">
       <span class="content__weekdays--day" v-for="weekday in weekdays" :key="weekday">
         {{ weekday }}
       </span>
     </div>
-    <grid-days :mode="mode" :selected-range="selectedRange" :show-months="showMonths" :showYears="showYears"
-      :today="today" :todayDate="todayDate" :engine="engine" @clicked="handleDayClick" />
-    <grid-months :show-months="showMonths" :today="today" :months="months" @clicked="handleMonthClick" />
+    <grid-days
+      :mode="mode"
+      :selected-range="selectedRange"
+      :show-months="showMonths"
+      :showYears="showYears"
+      :today="today"
+      :todayDate="todayDate"
+      :engine="engine"
+      @clicked="handleDayClick"
+    />
+    <grid-months
+      :show-months="showMonths"
+      :today="today"
+      :months="months"
+      @clicked="handleMonthClick"
+    />
     <grid-years :show-years="showYears" :today="today" :years="years" @clicked="handleYearClick" />
     <base-button text="تایید" @click="clickHandler" />
   </div>

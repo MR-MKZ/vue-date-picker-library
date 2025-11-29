@@ -12,7 +12,7 @@ const props = defineProps({
   today: Object,
 });
 
-const date = reactive({ ...props.today })
+const date = reactive({ ...props.today });
 const dayRef = ref(null);
 const monthRef = ref(null);
 const yearRef = ref(null);
@@ -49,9 +49,9 @@ watch([date], () => {
 });
 
 const handlers = {
-  day: (element) => date.day = Number(persianToEnglish(element)),
-  month: (element) => date.month = props.months.indexOf(element) + 1,
-  year: (element) => date.year = Number(persianToEnglish(element)),
+  day: (element) => (date.day = Number(persianToEnglish(element))),
+  month: (element) => (date.month = props.months.indexOf(element) + 1),
+  year: (element) => (date.year = Number(persianToEnglish(element))),
 };
 
 const makeScrollHandler = (ref, key) => {
@@ -62,9 +62,9 @@ const makeScrollHandler = (ref, key) => {
   };
 };
 
-const handleDayScroll = makeScrollHandler(dayRef, 'day');
-const handleMonthScroll = makeScrollHandler(monthRef, 'month');
-const handleYearScroll = makeScrollHandler(yearRef, 'year');
+const handleDayScroll = makeScrollHandler(dayRef, "day");
+const handleMonthScroll = makeScrollHandler(monthRef, "month");
+const handleYearScroll = makeScrollHandler(yearRef, "year");
 
 useInfiniteScroll(dayRef, () => props.engine.grid.value, { distance: 32 });
 useInfiniteScroll(monthRef, () => props.months, { distance: 32 });
@@ -84,20 +84,32 @@ onMounted(async () => {
 <template>
   <div class="calender">
     <div class="calender__block" ref="dayRef" @scroll="handleDayScroll">
-      <span v-for="(item, i) in currentDays" :key="i" class="calender__block--text"
-        :class="{ 'today': date.day === item.day }">
+      <span
+        v-for="(item, i) in currentDays"
+        :key="i"
+        class="calender__block--text"
+        :class="{ today: date.day === item.day }"
+      >
         {{ item.current && englishToPersianDigit(item.day) }}
       </span>
     </div>
     <div class="calender__block" ref="monthRef" @scroll="handleMonthScroll">
-      <span v-for="(month, i) in currentMonths" :key="i" class="calender__block--text"
-        :class="{ 'today': date.month - 3 === i - 4 }">
+      <span
+        v-for="(month, i) in currentMonths"
+        :key="i"
+        class="calender__block--text"
+        :class="{ today: date.month - 3 === i - 4 }"
+      >
         {{ month }}
       </span>
     </div>
     <div class="calender__block" ref="yearRef" @scroll="handleYearScroll">
-      <span v-for="(year, i) in currentYears" :key="i" class="calender__block--text"
-        :class="{ 'today': date.year === year }">
+      <span
+        v-for="(year, i) in currentYears"
+        :key="i"
+        class="calender__block--text"
+        :class="{ today: date.year === year }"
+      >
         {{ englishToPersianDigit(year) }}
       </span>
     </div>

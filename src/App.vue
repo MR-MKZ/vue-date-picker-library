@@ -1,12 +1,9 @@
 <script setup>
-import { ref } from "vue";
 import DatePicker from "./components/date-picker.vue";
-const date = ref("");
 </script>
 
 <template>
-  <date-picker format="YYYY/MM/DD" mode="range" v-model="date" />
-  <span>{{ date }}</span>
+  <date-picker format="YYYY/MM/DD" />
 </template>
 
 <style lang="scss">

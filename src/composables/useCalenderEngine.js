@@ -14,18 +14,6 @@ export const createCalendarEngine = (
   const setYear = (y) => (year.value = y);
   const setMonth = (m) => (month.value = m);
 
-  const prevMonth = () => {
-    const prev = adapter.getPreviousMonth(year.value, month.value);
-    year.value = prev.year;
-    month.value = prev.month;
-  };
-
-  const nextMonth = () => {
-    const next = adapter.getNextMonth(year.value, month.value);
-    year.value = next.year;
-    month.value = next.month;
-  };
-
   const grid = computed(() => {
     const cells = [];
     const daysInMonth = adapter.getDaysInMonth(year.value, month.value);
@@ -74,14 +62,5 @@ export const createCalendarEngine = (
     return cells.slice(0, 37);
   });
 
-  return {
-    year,
-    month,
-    setYear,
-    setMonth,
-    prevMonth,
-    nextMonth,
-    grid,
-    adapter,
-  };
+  return { setYear, setMonth, grid };
 };

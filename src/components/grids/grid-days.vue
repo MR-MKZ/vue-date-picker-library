@@ -14,17 +14,13 @@ const props = defineProps({
 
 defineEmits(["clicked"]);
 
-const sameDate = (a, b) => {
-  return a.day === b.day &&
-    a.month === b.month &&
-    a.year === b.year;
-}
+const sameDate = (a, b) => a.day === b.day && a.month === b.month && a.year === b.year;
 
 const inRangeWeeks = computed(() => {
   if (props.mode !== "range") return [];
   const cells = props.engine.grid.value;
-  const startIndex = cells.findIndex(cell => sameDate(cell, props.selectedRange.start));
-  const endIndex = cells.findIndex(cell => sameDate(cell, props.selectedRange.end));
+  const startIndex = cells.findIndex((cell) => sameDate(cell, props.selectedRange.start));
+  const endIndex = cells.findIndex((cell) => sameDate(cell, props.selectedRange.end));
 
   if (startIndex === -1 || endIndex === -1) return [];
   const weeks = [];
@@ -39,14 +35,15 @@ const inRangeWeeks = computed(() => {
     if (hasStart && hasEnd) weeks.push({ from: startIndex, to: endIndex });
     else if (hasStart) weeks.push({ from: startIndex, to: weekEnd });
     else if (hasEnd) weeks.push({ from: weekStart, to: endIndex });
-    else if (weekStart > startIndex && weekEnd < endIndex) weeks.push({ from: weekStart, to: weekEnd });
+    else if (weekStart > startIndex && weekEnd < endIndex)
+      weeks.push({ from: weekStart, to: weekEnd });
   }
 
   return weeks;
 });
 
 const isCellInRange = (index) => {
-  return inRangeWeeks.value.some(w => index >= w.from && index <= w.to);
+  return inRangeWeeks.value.some((w) => index >= w.from && index <= w.to);
 };
 
 const getCellClasses = (cell, index) => {
@@ -68,19 +65,24 @@ const getCellClasses = (cell, index) => {
 
 <template>
   <div class="content__days" v-if="!showMonths && !showYears">
-    <div v-for="(week, wIndex) in inRangeWeeks" :key="wIndex" class="content__days__week-gradient" :style="{
-      gridColumn: `${week.from % 7 + 1} / ${week.to % 7 + 2}`,
-      gridRow: `${Math.floor(week.from / 7) + 1} / ${Math.floor(week.to / 7) + 2}`,
-    }"></div>
-    <div class="content__days__day" v-for="(cell, i) in engine.grid.value" :key="i" :class="getCellClasses(cell, i)"
-      @click="$emit('clicked', cell)">
+    <div
+      v-for="(week, wIndex) in inRangeWeeks"
+      :key="wIndex"
+      class="content__days__week-gradient"
+      :style="{
+        gridColumn: `${(week.from % 7) + 1} / ${(week.to % 7) + 2}`,
+        gridRow: `${Math.floor(week.from / 7) + 1} / ${Math.floor(week.to / 7) + 2}`,
+      }"
+    ></div>
+    <div
+      class="content__days__day"
+      v-for="(cell, i) in engine.grid.value"
+      :key="i"
+      :class="getCellClasses(cell, i)"
+      @click="$emit('clicked', cell)"
+    >
       {{ englishToPersianDigit(cell.day) }}
-      <span class="content__days__day--today" v-if="
-        todayDate.day === cell.day &&
-        todayDate.month === cell.month &&
-        todayDate.year === cell.year &&
-        cell.current
-      ">
+      <span class="content__days__day--today" v-if="sameDate(cell, todayDate) && cell.current">
         امروز
       </span>
     </div>
