@@ -2,6 +2,7 @@
 import { ref, reactive, computed, watch, onMounted, nextTick } from "vue";
 import { useInfiniteScroll } from "@vueuse/core";
 import { englishToPersianDigit, persianToEnglish } from "@/utils/replaceNumbers";
+import wrapList from "@/utils/wrapList";
 
 const props = defineProps({
   activeLang: String,
@@ -11,32 +12,15 @@ const props = defineProps({
   today: Object,
 });
 
-const date = reactive({ year: props.today.year, month: props.today.month, day: props.today.day })
-
+const date = reactive({ ...props.today })
 const dayRef = ref(null);
 const monthRef = ref(null);
 const yearRef = ref(null);
 
-const currentGrid = computed(() => {
-  const grids = props.engine.grid.value.filter((item) => item.current)
-  const startOfArray = grids.slice(0, 2)
-  const endOfArray = grids.slice(grids.length - 2)
-  return [...endOfArray, ...grids, ...startOfArray]
-});
-
-const currentYears = computed(() => {
-  const grids = props.years
-  const startOfArray = grids.length > 5 ? grids.slice(0, 2) : []
-  const endOfArray = grids.length > 5 ? grids.slice(grids.length - 2) : []
-  return [...endOfArray, ...grids, ...startOfArray]
-});
-
-const currentMonths = computed(() => {
-  const grids = props.months
-  const startOfArray = grids.length > 5 ? grids.slice(0, 2) : []
-  const endOfArray = grids.length > 5 ? grids.slice(grids.length - 2) : []
-  return [...endOfArray, ...grids, ...startOfArray]
-});
+const currentGrid = computed(() => props.engine.grid.value.filter((item) => item.current));
+const currentDays = computed(() => wrapList(currentGrid.value));
+const currentMonths = computed(() => wrapList(props.months));
+const currentYears = computed(() => wrapList(props.years));
 
 const pickCenterItem = (container) => {
   if (!container) return null;
@@ -64,45 +48,43 @@ watch([date], () => {
   props.engine.setYear(date.year);
 });
 
-const handleDayScroll = () => {
-  const el = pickCenterItem(dayRef.value);
-  if (!el) return;
-  date.day = Number(persianToEnglish(el.innerText))
+const handlers = {
+  day: (element) => date.day = Number(persianToEnglish(element)),
+  month: (element) => date.month = props.months.indexOf(element) + 1,
+  year: (element) => date.year = Number(persianToEnglish(element)),
 };
 
-const handleMonthScroll = () => {
-  const el = pickCenterItem(monthRef.value);
-  if (!el) return;
-  date.month = props.months.indexOf(el.innerText) + 1
+const makeScrollHandler = (ref, key) => {
+  return () => {
+    const element = pickCenterItem(ref.value);
+    if (!element) return;
+    handlers[key](element.innerText);
+  };
 };
 
-const handleYearScroll = () => {
-  const el = pickCenterItem(yearRef.value);
-  if (!el) return;
-  date.year = Number(persianToEnglish(el.innerText))
-};
+const handleDayScroll = makeScrollHandler(dayRef, 'day');
+const handleMonthScroll = makeScrollHandler(monthRef, 'month');
+const handleYearScroll = makeScrollHandler(yearRef, 'year');
 
 useInfiniteScroll(dayRef, () => props.engine.grid.value, { distance: 32 });
 useInfiniteScroll(monthRef, () => props.months, { distance: 32 });
 useInfiniteScroll(yearRef, () => props.years, { distance: 32 });
 
+const scrollToToday = (ref) => {
+  const element = ref.value?.querySelector(".today");
+  if (element) element.scrollIntoView({ block: "center" });
+};
+
 onMounted(async () => {
   await nextTick();
-  const todayDayEl = dayRef.value.querySelector(".today");
-  if (todayDayEl) todayDayEl.scrollIntoView({ block: "center" });
-
-  const todayMonthEl = monthRef.value.querySelector(".today");
-  if (todayMonthEl) todayMonthEl.scrollIntoView({ block: "center" });
-
-  const todayYearEl = yearRef.value.querySelector(".today");
-  if (todayYearEl) todayYearEl.scrollIntoView({ block: "center" });
+  [dayRef, monthRef, yearRef].forEach(scrollToToday);
 });
 </script>
 
 <template>
   <div class="calender">
     <div class="calender__block" ref="dayRef" @scroll="handleDayScroll">
-      <span v-for="(item, i) in currentGrid" :key="i" class="calender__block--text"
+      <span v-for="(item, i) in currentDays" :key="i" class="calender__block--text"
         :class="{ 'today': date.day === item.day }">
         {{ item.current && englishToPersianDigit(item.day) }}
       </span>

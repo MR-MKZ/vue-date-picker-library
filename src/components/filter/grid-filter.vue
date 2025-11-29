@@ -34,10 +34,10 @@ const emit = defineEmits(["update:showMonths", "update:showYears"]);
     <div class="content__filter--item" style="rotate: 180deg">
       <icon-arrow />
     </div>
-    <div class="content__filter--item" @scroll="onScroll('day', $event)">
+    <div class="content__filter--item">
       <span>{{ englishToPersianDigit(today.year) }}</span>
     </div>
-    <div class="content__filter--item">
+    <div class=" content__filter--item">
       <icon-arrow />
     </div>
   </div>

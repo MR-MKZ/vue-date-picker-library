@@ -29,7 +29,7 @@ const activeLang = ref("fa");
 const showCalender = ref(props.assign ? true : false);
 const today = useGetToday();
 
-const adapter = computed(() => langDates.langs[activeLang.value].adaptor);
+const adapter = computed(() => langDates.langs[activeLang.value].adapter);
 const months = computed(() => langDates.langs[activeLang.value].months);
 const engine = createCalendarEngine(adapter.value, today.year, today.month, true, [
   props.min,
@@ -37,18 +37,17 @@ const engine = createCalendarEngine(adapter.value, today.year, today.month, true
 ]);
 
 const years = computed(() => {
-  const arr = [];
+  const yearsBetweenRanges = [];
   const start = props.min.split("/")[0];
   const end = props.max.split("/")[0];
-  for (let year = start; year <= end; year++) arr.push(Number(year));
-  return arr;
+  for (let year = start; year <= end; year++) yearsBetweenRanges.push(Number(year));
+  return yearsBetweenRanges;
 });
 
-
 const formatDate = (date) => {
-  showCalender.value = false;
   const formatted = dateFormatter(date, props.format)
   model.value = formatted
+  showCalender.value = false;
 };
 
 watch([showCalender], () => emit(showCalender.value ? "open" : "close"));
@@ -56,9 +55,9 @@ watch([showCalender], () => emit(showCalender.value ? "open" : "close"));
 
 <template>
   <div class="container" v-if="showCalender">
-    <desktop-datepicker :activeLang="activeLang" :months="months" :years="years" @date="formatDate"
-      @changed="$emit('changed')" :mode="mode" :engine="engine" :todayDate="today" />
-    <mobile-datepicker :months="months" :years="years" :activeLang="activeLang" :engine="engine" :today="today" />
+    <desktop-datepicker :active-lang="activeLang" :months="months" :years="years" @date="formatDate"
+      @changed="$emit('changed')" :mode="mode" :engine="engine" :today-date="today" />
+    <mobile-datepicker :months="months" :years="years" :active-lang="activeLang" :engine="engine" :today="today" />
   </div>
-  <base-input @click="showCalender = true" v-if="!showCalender && !assign" :value="model" :placeholder="model" />
+  <base-input @click="showCalender = true" v-if="!showCalender && !assign" :value="model" />
 </template>
