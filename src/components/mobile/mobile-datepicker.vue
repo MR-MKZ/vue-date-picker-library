@@ -13,7 +13,8 @@ const props = defineProps({
 });
 
 const date = reactive({ ...props.today });
-const selectedDate = reactive({});
+const selectedDate = reactive({ day: date.day, month: date.month, year: date.year });
+const ignoreInitialEmit = ref(true);
 const dayRef = ref(null);
 const monthRef = ref(null);
 const yearRef = ref(null);
@@ -59,7 +60,6 @@ const makeScrollHandler = (ref, key) => {
   return () => {
     const element = pickCenterItem(ref.value);
     if (!element) return;
-    handlers[key](element.innerText);
     selectedDate[key] = handlers[key](element.innerText);
   };
 };
@@ -80,6 +80,7 @@ const scrollToToday = (ref) => {
 const emit = defineEmits(["changed"]);
 
 watch(selectedDate, () => {
+  if (ignoreInitialEmit.value) return;
   emit("changed", {
     status: "mobile",
     date: `${selectedDate.year}/${selectedDate.month}/${selectedDate.day}`,
@@ -89,6 +90,8 @@ watch(selectedDate, () => {
 onMounted(async () => {
   await nextTick();
   [dayRef, monthRef, yearRef].forEach(scrollToToday);
+  await nextTick();
+  ignoreInitialEmit.value = false;
 });
 </script>
 

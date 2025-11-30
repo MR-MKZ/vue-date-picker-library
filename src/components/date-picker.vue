@@ -22,7 +22,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["close", "open", "changed", "onClosed"]);
+const emit = defineEmits(["close", "open", "changed"]);
 const model = defineModel();
 
 const activeLang = ref("fa");
@@ -51,7 +51,9 @@ const formatDate = (date) => {
   else emit("close");
 };
 
-watch(showCalender, (value) => emit(value ? "open" : "close"));
+watch(showCalender, (value) => {
+  if (!props.headless && value) emit("open");
+});
 
 const closeHandler = () => {
   if (!props.headless) showCalender.value = false;

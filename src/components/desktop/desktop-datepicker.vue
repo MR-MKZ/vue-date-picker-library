@@ -72,6 +72,7 @@ const clickHandler = () => {
     const { year: startYear, month: startMonth, day: startDay } = selectedRange.start;
     const { year: endYear, month: endMonth, day: endDay } = selectedRange.end;
     emit("date", `${startYear}/${startMonth}/${startDay} | ${endYear}/${endMonth}/${endDay}`);
+    emit("closed");
     return;
   }
   const { day, month, year } = today;
