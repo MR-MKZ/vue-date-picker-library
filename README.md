@@ -12,14 +12,50 @@ npm install moli-datepicker --save
 
 ### Usage
 
+if you want to use it normal use this code
+
 ```vue
 <script setup>
-import MoliDatepicker from "moli-datepicker";
-const date = ref("");
+import { ref } from "vue";
+import DatePicker from "./components/date-picker.vue";
+const date = ref("")
 </script>
 
 <template>
   <moli-datepicker v-model="date" />
+</template>
+```
+
+if you want to access to the events that the library provides, use this code
+
+```vue
+<script setup>
+import { ref } from "vue";
+import DatePicker from "./components/date-picker.vue";
+const date = ref("")
+</script>
+
+<template>
+  <date-picker v-model="date" @close="console.log('close')" @open="console.log('open')" @changed="console.log('changed')" />
+</template>
+```
+
+if you want to declare the calender headless use this code
+
+> using `@close` is required to handle the visibility.
+> when you are using the calender, calender is always visible and you have a full control to change the visibility
+
+```vue
+<script setup>
+import { ref } from "vue";
+import DatePicker from "./components/date-picker.vue";
+const date = ref("")
+const show = ref(false)
+</script>
+
+<template>
+  <date-picker v-model="date" @close="show = false" headless v-if="show" />
+  <button @click="show = true">show the calender</button>
 </template>
 ```
 
@@ -31,9 +67,9 @@ calender component accept these common props:
 | -------- | --------- | ------------------------- | --------------------------- | ------------------------- |
 | `format` | `string`  | `"YYYY/MM/DD"`            | Format of the dates         | `YYYY.MM.DD` `YYYY-MM-DD` |
 | `min`    | `string`  | `1400/1/1`                | min age that calender shows | `any`                     |
-| `max`    | `string`  | `end of the current year` | max age that calender shows | `any`                     |
-| `mode`   | `string`  | `single`                  | change the mode of calender | `multiple` `range`        |
-| `assign` | `boolean` | `false`                   | assign to a input           | `true`                    |
+| `max`    | `string`  | `1405/1/1`                | max age that calender shows | `any`                     |
+| `mode`   | `string`  | `single`                  | change the mode of calender | `range`        |
+|`headless`| `boolean`| `false`                 | assign to a input or not    | `true`                    |
 
 ## Built With
 
@@ -42,4 +78,4 @@ calender component accept these common props:
 
 ## Change log
 
-### 1.0.0 (2025-11-28)
+### 1.0.0 (2025-11-30)
