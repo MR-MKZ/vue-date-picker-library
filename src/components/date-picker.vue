@@ -11,8 +11,8 @@ import BaseInput from "@/components/ui/base-input.vue";
 const props = defineProps({
   format: { type: String, default: "YYYY-MM-DD" },
   min: { type: String, default: "1400/01/01" },
-  max: { type: String, default: "1410/01/15" },
-  assign: { type: Boolean, default: false },
+  max: { type: String, default: "1405/09/08" },
+  headless: { type: Boolean, default: false },
   mode: {
     type: String,
     default: "single",
@@ -22,65 +22,48 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["close", "open", "changed"]);
+const emit = defineEmits(["close", "open", "changed", "onClosed"]);
 const model = defineModel();
 
 const activeLang = ref("fa");
-const result = ref("");
-const showCalender = ref(props.assign ? true : false);
 const today = useGetToday();
 
+const showCalender = ref(props.headless);
 const adapter = computed(() => langDates.langs[activeLang.value].adapter);
 const months = computed(() => langDates.langs[activeLang.value].months);
-const engine = createCalendarEngine(adapter.value, today.year, today.month, true, [
-  props.min,
-  props.max,
-]);
+
+const engine = createCalendarEngine(adapter.value, today.year, today.month, true,
+  [props.min, props.max]
+);
 
 const years = computed(() => {
-  const out = [];
-  const start = Number(props.min.split("/")[0]);
-  const end = Number(props.max.split("/")[0]);
-  for (let y = start; y <= end; y++) out.push(y);
-  return out;
+  let start = Number(props.min.split("/")[0]);
+  let end = Number(props.max.split("/")[0]);
+  return Array.from({ length: end - start + 1 }, (_, i) => start + i);
 });
 
 const formatDate = (date) => {
-  if (props.mode === "single") result.value = dateFormatter(date, props.format);
-  else result.value = date;
-
-  model.value = result.value;
-  showCalender.value = false;
+  const formattedDate = props.mode === "single" ? dateFormatter(date, props.format) : date;
+  model.value = formattedDate
+  if (!props.headless) showCalender.value = false;
+  else emit("close");
 };
 
-watch([showCalender], () => emit(showCalender.value ? "open" : "close"));
+watch(showCalender, (value) => emit(value ? "open" : "close"));
+
+const closeHandler = () => {
+  if (!props.headless) showCalender.value = false;
+  emit("close");
+};
 </script>
+
 
 <template>
   <div class="container" v-if="showCalender">
-    <desktop-datepicker
-      :active-lang="activeLang"
-      :months="months"
-      :years="years"
-      @date="formatDate"
-      @changed="$emit('changed')"
-      :mode="mode"
-      :engine="engine"
-      :today-date="today"
-    />
-    <mobile-datepicker
-      :months="months"
-      :showCalender="showCalender"
-      :years="years"
-      :active-lang="activeLang"
-      :engine="engine"
-      :today="today"
-    />
+    <desktop-datepicker :active-lang="activeLang" :months="months" :years="years" @date="formatDate"
+      @changed="$emit('changed')" @closed="closeHandler" :mode="mode" :engine="engine" :today-date="today" />
+    <mobile-datepicker :months="months" :showCalender="showCalender" :years="years" :active-lang="activeLang"
+      :engine="engine" :today="today" />
   </div>
-  <base-input
-    v-if="!showCalender && !assign"
-    @click="showCalender = true"
-    :value="result"
-    :placeholder="result"
-  />
+  <base-input v-if="!headless" @click="showCalender = true" :value="model" :placeholder="model" />
 </template>
