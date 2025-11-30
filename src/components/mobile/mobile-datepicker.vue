@@ -13,6 +13,7 @@ const props = defineProps({
 });
 
 const date = reactive({ ...props.today });
+const selectedDate = reactive({})
 const dayRef = ref(null);
 const monthRef = ref(null);
 const yearRef = ref(null);
@@ -59,6 +60,7 @@ const makeScrollHandler = (ref, key) => {
     const element = pickCenterItem(ref.value);
     if (!element) return;
     handlers[key](element.innerText);
+    selectedDate[key] = handlers[key](element.innerText);
   };
 };
 
@@ -74,6 +76,12 @@ const scrollToToday = (ref) => {
   const element = ref.value?.querySelector(".today");
   if (element) element.scrollIntoView({ block: "center" });
 };
+
+const emit = defineEmits(["changed"])
+
+watch(selectedDate, () => {
+  emit("changed", { status: "mobile", date: `${selectedDate.year}/${selectedDate.month}/${selectedDate.day}` })
+})
 
 onMounted(async () => {
   await nextTick();
