@@ -29,7 +29,7 @@ const date = ref("")
 ``` js
 import { createApp } from 'vue'
 import App from './App.vue'
-import 'moli-vue-date-picker/dist/index.css';
+import 'moli-vue-date-picker/dist/moli-vue-date-picker.css';
 
 createApp(App).mount('#app')
 ```
