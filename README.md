@@ -82,11 +82,16 @@ calender component accept these common props:
 ## Built With
 
 - [Vue.js](https://vuejs.org/) - The Progressive JavaScript Framework.
-- [moment-jalaali](https://github.com/jalaali/moment-jalaali) - A Jalaali (Jalali, Persian, Khorshidi, Shamsi) calendar system plugin for moment.js.
+- [date-fns](https://date-fns.org/) - A calendar system plugin.
 
 ## Change log
 
-#### 1.0.1 (2025-12-01)
+#### 0.0.2 (2025-12-01)
+- fix: fix the css minification in the package
+- fix: fix the styles imports for performance
+- feat: migrate to date-fns instead of moment.js 
+
+#### 0.0.1 (2025-12-01)
 - docs: format document and improve readability
 
-### 1.0.0 (2025-11-30)
+### 0.0.1 (2025-11-30)
