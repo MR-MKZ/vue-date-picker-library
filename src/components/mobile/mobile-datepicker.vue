@@ -155,21 +155,34 @@ onMounted(async () => {
 <template>
   <div class="calender">
     <div class="calender__block" ref="dayRef" @scroll="handleDayScroll">
-      <span v-for="(item, i) in currentDays" :key="i" class="calender__block--text"
-        :class="{ today: date.day === item.value && item.zone === 'original' }">
+      <span
+        v-for="(item, i) in currentDays"
+        :key="i"
+        class="calender__block--text"
+        :class="{ today: date.day === item.value && item.zone === 'original' }"
+      >
         {{ englishToPersianDigit(item.value) }}
       </span>
     </div>
     <div class="calender__block" ref="monthRef" @scroll="handleMonthScroll">
-      <span v-for="(item, i) in currentMonths" :key="i" class="calender__block--text" :class="{
-        today: date.month === filteredMonths.indexOf(item.value) + 1 && item.zone === 'original',
-      }">
+      <span
+        v-for="(item, i) in currentMonths"
+        :key="i"
+        class="calender__block--text"
+        :class="{
+          today: date.month === filteredMonths.indexOf(item.value) + 1 && item.zone === 'original',
+        }"
+      >
         {{ item.value }}
       </span>
     </div>
     <div class="calender__block" ref="yearRef" @scroll="handleYearScroll">
-      <span v-for="(item, i) in currentYears" :key="i" class="calender__block--text"
-        :class="{ today: date.year === item.value && item.zone === 'original' }">
+      <span
+        v-for="(item, i) in currentYears"
+        :key="i"
+        class="calender__block--text"
+        :class="{ today: date.year === item.value && item.zone === 'original' }"
+      >
         {{ item.value }}
       </span>
     </div>
