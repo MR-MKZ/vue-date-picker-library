@@ -17,7 +17,7 @@ const props = defineProps({
     type: String,
     default: "single",
     validator(value) {
-      return ["range", "single"].includes(value);
+      return ["range", "single", "multiple"].includes(value);
     },
   },
 });
@@ -92,5 +92,10 @@ const changeDateHandler = (item) => {
       :max="max"
     />
   </div>
-  <base-input v-if="!headless" @click="showCalender = true" :value="model" :placeholder="model" />
+  <base-input
+    v-if="!headless"
+    @click="showCalender = true"
+    :value="model"
+    :placeholder="mode !== 'multiple' ? model : ''"
+  />
 </template>

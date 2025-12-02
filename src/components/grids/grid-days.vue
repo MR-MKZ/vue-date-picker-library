@@ -8,6 +8,7 @@ const props = defineProps({
   mode: String,
   todayDate: Object,
   selectedRange: Object,
+  multipleSelections: Array,
   today: Object,
   engine: Object,
 });
@@ -48,7 +49,10 @@ const isCellInRange = (index) => {
 
 const getCellClasses = (cell, index) => {
   const today = sameDate(props.todayDate, cell);
-  const selected = props.mode === "single" && sameDate(props.today, cell) && cell.enable;
+  const selected =
+    props.mode === "single"
+      ? sameDate(props.today, cell) && cell.enable
+      : props.multipleSelections.some((date) => sameDate(date, cell)) && cell.enable;
   const isRangeStart = sameDate(props.selectedRange.start, cell);
   const isRangeEnd = sameDate(props.selectedRange.end, cell);
 

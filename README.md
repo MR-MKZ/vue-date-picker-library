@@ -76,8 +76,8 @@ calender component accept these common props:
 | `format` | `string`  | `"YYYY/MM/DD"`            | Format of the dates         | `YYYY.MM.DD` `YYYY-MM-DD` |
 | `min`    | `string`  | `1400/1/1`                | min age that calender shows | `any`                     |
 | `max`    | `string`  | `1405/1/1`                | max age that calender shows | `any`                     |
-| `mode`   | `string`  | `single`                  | change the mode of calender | `range`        |
-|`headless`| `boolean`| `false`                 | assign to a input or not    | `true`                    |
+| `mode`   | `string`  | `single`                  | change the mode of calender | `range` `multiple`        |
+|`headless`| `boolean` | `false`                   | assign to a input or not    | `true`                    |
 
 ## Built With
 
@@ -86,7 +86,10 @@ calender component accept these common props:
 
 ## Change log
 
-#### 0.0.2 (2025-12-01)
+#### 0.1.0 (2025-12-02)
+- feat: add multiple selection to the project
+
+#### 0.0.2 (2025-12-02)
 - fix: fix the css minification in the package
 - fix: fix the styles imports for performance
 - feat: migrate to date-fns instead of moment.js 

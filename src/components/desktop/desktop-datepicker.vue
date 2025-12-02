@@ -20,6 +20,7 @@ const showMonths = ref(false);
 const showYears = ref(false);
 const today = reactive({ ...props.todayDate });
 const selectedRange = reactive({ start: {}, end: {} });
+const multipleSelections = reactive([{ ...props.todayDate }]);
 
 const weekdays = computed(() => langDates.langs[props.activeLang].weekdays);
 const currentMonthText = computed(() => langDates.langs[props.activeLang].months[today.month - 1]);
@@ -31,10 +32,20 @@ watch([today], () => {
   props.engine.setYear(today.year);
 });
 
-watch([selectedRange, today], () => emit("changed"));
+watch([selectedRange, today, multipleSelections], () => emit("changed"));
 
 const handleDayClick = (cell) => {
   if (props.mode === "single" && cell.current && cell.enable) today.day = cell.day;
+  if (props.mode === "multiple" && cell.enable) {
+    const selectedItemIndex = multipleSelections.findIndex(
+      (item) => item.day === cell.day && item.month === cell.month && item.year === cell.year,
+    );
+    if (selectedItemIndex !== -1) {
+      multipleSelections.splice(selectedItemIndex, 1);
+    } else {
+      multipleSelections.push({ ...cell });
+    }
+  }
   if (props.mode === "range" && cell.enable && cell.current) {
     if (!selectedRange.start.day) {
       selectedRange.start.day = cell.day;
@@ -77,6 +88,13 @@ const clickHandler = () => {
     props.engine.setYear(props.todayDate.year);
     return;
   }
+  if (props.mode === "multiple") {
+    emit("date", multipleSelections);
+    emit("closed");
+    props.engine.setMonth(props.todayDate.month);
+    props.engine.setYear(props.todayDate.year);
+    return;
+  }
   const { day, month, year } = today;
   emit("date", `${year}/${month}/${day}`);
   props.engine.setMonth(props.todayDate.month);
@@ -112,6 +130,7 @@ const clickHandler = () => {
       :todayDate="todayDate"
       :engine="engine"
       @clicked="handleDayClick"
+      :multiple-selections="multipleSelections"
     />
     <grid-months
       :show-months="showMonths"
