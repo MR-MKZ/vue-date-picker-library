@@ -86,6 +86,9 @@ calender component accept these common props:
 
 ## Change log
 
+#### 0.1.1 (2025-12-03)
+- fix: fix the selection issue in ranges and multiples
+
 #### 0.1.0 (2025-12-02)
 - feat: add multiple selection to the project
 
