@@ -49,10 +49,9 @@ const isCellInRange = (index) => {
 
 const getCellClasses = (cell, index) => {
   const today = sameDate(props.todayDate, cell);
-  const selected =
-    props.mode === "single"
+  const selected = props.mode === "single"
       ? sameDate(props.today, cell) && cell.enable
-      : props.multipleSelections.some((date) => sameDate(date, cell)) && cell.enable;
+      : props.multipleSelections.some((date) => sameDate(date, cell)) && cell.enable && props.mode !== "range" && cell.current;
   const isRangeStart = sameDate(props.selectedRange.start, cell);
   const isRangeEnd = sameDate(props.selectedRange.end, cell);
 
