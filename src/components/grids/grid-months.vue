@@ -1,5 +1,5 @@
 <script setup>
-defineProps({ showMonths: Boolean, today: Object, months: Array });
+defineProps({ showMonths: Boolean, date: Object, months: Array });
 
 defineEmits(["clicked"]);
 </script>
@@ -10,7 +10,7 @@ defineEmits(["clicked"]);
       class="content__months--month"
       v-for="(month, index) in months"
       :key="month"
-      :class="{ selected: today.month - 1 === index }"
+      :class="{ selected: date.month - 1 === index }"
       @click="$emit('clicked', index)"
     >
       {{ month }}

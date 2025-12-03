@@ -1,7 +1,7 @@
 <script setup>
 import { englishToPersianDigit } from "@/utils/replaceNumbers";
 
-defineProps({ showYears: Boolean, today: Object, years: Array });
+defineProps({ showYears: Boolean, date: Object, years: Array, activeLang: String });
 
 defineEmits(["clicked"]);
 </script>
@@ -12,10 +12,10 @@ defineEmits(["clicked"]);
       class="content__years--year"
       v-for="year in years"
       :key="year"
-      :class="{ selected: today.year === year }"
+      :class="{ selected: date.year === year }"
       @click="$emit('clicked', year)"
     >
-      {{ englishToPersianDigit(year) }}
+      {{ activeLang === "gregorian" ? year : englishToPersianDigit(year) }}
     </div>
   </div>
 </template>

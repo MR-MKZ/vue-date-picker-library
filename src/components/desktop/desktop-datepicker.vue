@@ -18,24 +18,26 @@ const props = defineProps({
 });
 const showMonths = ref(false);
 const showYears = ref(false);
-const today = reactive({ ...props.todayDate });
+const date = reactive({ ...props.todayDate });
 const selectedRange = reactive({ start: {}, end: {} });
 const multipleSelections = reactive([{ ...props.todayDate }]);
 
 const weekdays = computed(() => langDates.langs[props.activeLang].weekdays);
-const currentMonthText = computed(() => langDates.langs[props.activeLang].months[today.month - 1]);
+const currentMonthText = computed(() => langDates.langs[props.activeLang].months[date.month ? date.month - 1 : props.todayDate.month - 1]);
+const mainText = computed(() => langDates.langs[props.activeLang].mainText);
+const todayText = computed(() => langDates.langs[props.activeLang].todayText);
 
-watch([today], () => {
+watch([date], () => {
   selectedRange.end = {};
   selectedRange.start = {};
-  props.engine.setMonth(today.month);
-  props.engine.setYear(today.year);
+  props.engine.setMonth(date.month);
+  props.engine.setYear(date.year);
 });
 
-watch([selectedRange, today, multipleSelections], () => emit("changed"));
+watch([selectedRange, date, multipleSelections], () => emit("changed"));
 
 const handleDayClick = (cell) => {
-  if (props.mode === "single" && cell.current && cell.enable) today.day = cell.day;
+  if (props.mode === "single" && cell.current && cell.enable) date.day = cell.day;
   if (props.mode === "multiple" && cell.enable) {
     const selectedItemIndex = multipleSelections.findIndex(
       (item) => item.day === cell.day && item.month === cell.month && item.year === cell.year,
@@ -66,12 +68,12 @@ const handleDayClick = (cell) => {
 };
 
 const handleMonthClick = (index) => {
-  today.month = index + 1;
+  date.month = index + 1;
   showMonths.value = false;
 };
 
 const handleYearClick = (year) => {
-  today.year = year;
+  date.year = year;
   showYears.value = false;
   showMonths.value = true;
 };
@@ -95,7 +97,7 @@ const clickHandler = () => {
     props.engine.setYear(props.todayDate.year);
     return;
   }
-  const { day, month, year } = today;
+  const { day, month, year } = date;
   emit("date", `${year}/${month}/${day}`);
   props.engine.setMonth(props.todayDate.month);
   props.engine.setYear(props.todayDate.year);
@@ -105,40 +107,23 @@ const clickHandler = () => {
 <template>
   <header class="header">
     <icon-close class="header--close" @click="$emit('closed')" />
-    <p class="header--title">تاریخ را انتخاب نمایید</p>
+    <p class="header--title">{{ mainText }}</p>
   </header>
   <div class="content">
-    <grid-filter
-      :currentMonthText="currentMonthText"
-      :show-years="showYears"
-      :show-months="showMonths"
-      :today="today"
-      @update:showYears="(e) => ((showYears = e), (showMonths = !e))"
-      @update:showMonths="(e) => ((showYears = !e), (showMonths = e))"
-    />
+    <grid-filter :currentMonthText="currentMonthText" :show-years="showYears" :show-months="showMonths" :date="date"
+      :active-lang="activeLang" @update:showYears="(e) => ((showYears = e), (showMonths = !e))"
+      @update:showMonths="(e) => ((showYears = !e), (showMonths = e))" />
     <div class="content__weekdays" v-if="!showMonths && !showYears">
       <span class="content__weekdays--day" v-for="weekday in weekdays" :key="weekday">
         {{ weekday }}
       </span>
     </div>
-    <grid-days
-      :mode="mode"
-      :selected-range="selectedRange"
-      :show-months="showMonths"
-      :showYears="showYears"
-      :today="today"
-      :todayDate="todayDate"
-      :engine="engine"
-      @clicked="handleDayClick"
-      :multiple-selections="multipleSelections"
-    />
-    <grid-months
-      :show-months="showMonths"
-      :today="today"
-      :months="months"
-      @clicked="handleMonthClick"
-    />
-    <grid-years :show-years="showYears" :today="today" :years="years" @clicked="handleYearClick" />
-    <base-button text="تایید" @click="clickHandler" />
+    <grid-days :mode="mode" :selected-range="selectedRange" :show-months="showMonths" :showYears="showYears"
+      :date="date" :todayDate="todayDate" :active-lang="activeLang" :today-text="todayText" :engine="engine"
+      @clicked="handleDayClick" :multiple-selections="multipleSelections" />
+    <grid-months :show-months="showMonths" :date="date" :months="months" @clicked="handleMonthClick" />
+    <grid-years :show-years="showYears" :date="date" :years="years" @clicked="handleYearClick"
+      :active-lang="activeLang" />
+    <base-button :text="activeLang === 'jalaali' ? 'تایید' : 'submit'" @click="clickHandler" />
   </div>
 </template>

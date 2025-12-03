@@ -9,8 +9,10 @@ const props = defineProps({
   todayDate: Object,
   selectedRange: Object,
   multipleSelections: Array,
-  today: Object,
+  date: Object,
   engine: Object,
+  activeLang: String,
+  todayText: String,
 });
 
 defineEmits(["clicked"]);
@@ -48,16 +50,18 @@ const isCellInRange = (index) => {
 };
 
 const getCellClasses = (cell, index) => {
-  const today = sameDate(props.todayDate, cell);
-  const selected = props.mode === "single"
-      ? sameDate(props.today, cell) && cell.enable
-      : props.multipleSelections.some((date) => sameDate(date, cell)) && cell.enable && props.mode !== "range" && cell.current;
+  const selected =
+    props.mode === "single"
+      ? sameDate(props.date, cell)
+      : props.multipleSelections.some((date) => sameDate(date, cell)) &&
+        cell.enable &&
+        props.mode !== "range" &&
+        cell.current;
   const isRangeStart = sameDate(props.selectedRange.start, cell);
   const isRangeEnd = sameDate(props.selectedRange.end, cell);
 
   return {
     selected,
-    today,
     "not-current": !cell.current || !cell.enable,
     "range-start": isRangeStart,
     "range-end": isRangeEnd,
@@ -84,9 +88,9 @@ const getCellClasses = (cell, index) => {
       :class="getCellClasses(cell, i)"
       @click="$emit('clicked', cell)"
     >
-      {{ englishToPersianDigit(cell.day) }}
+      {{ activeLang === "gregorian" ? cell.day : englishToPersianDigit(cell.day) }}
       <span class="content__days__day--today" v-if="sameDate(cell, todayDate) && cell.current">
-        امروز
+        {{ todayText }}
       </span>
     </div>
   </div>

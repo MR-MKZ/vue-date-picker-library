@@ -10,9 +10,10 @@ import BaseInput from "@/components/ui/base-input.vue";
 
 const props = defineProps({
   format: { type: String, default: "YYYY-MM-DD" },
-  min: { type: String, default: "1400/01/01" },
-  max: { type: String, default: "1405/09/08" },
+  min: { type: String, default: "1404/01/01" },
+  max: { type: String, default: "2026/12/08" },
   headless: { type: Boolean, default: false },
+  locales: { type: Boolean, default: true },
   mode: {
     type: String,
     default: "single",
@@ -25,13 +26,14 @@ const props = defineProps({
 const emit = defineEmits(["close", "open", "changed"]);
 const model = defineModel();
 
-const activeLang = ref("fa");
+const activeLang = ref("jalaali");
 const selectedDate = ref("");
 const showCalender = ref(props.headless);
-const today = useGetToday();
+const today = useGetToday(activeLang.value);
 
 const adapter = computed(() => langDates.langs[activeLang.value].adapter);
 const months = computed(() => langDates.langs[activeLang.value].months);
+const direction = computed(() => langDates.langs[activeLang.value].direction);
 
 const engine = createCalendarEngine(adapter.value, today.year, today.month, true, [
   props.min,
@@ -68,7 +70,7 @@ const changeDateHandler = (item) => {
 
 <template>
   <div v-if="showCalender" class="overlay" @click="closeHandler"></div>
-  <div class="container" v-if="showCalender">
+  <div class="container" v-if="showCalender" :dir="direction">
     <desktop-datepicker
       :active-lang="activeLang"
       :months="months"

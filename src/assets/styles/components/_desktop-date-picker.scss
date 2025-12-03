@@ -105,6 +105,8 @@
     padding-inline: 2px;
 
     &--day {
+      width: 30px;
+      text-align: center;
       font-size: 12px;
       line-height: 16px;
       color: $text-light-base;
