@@ -11,7 +11,7 @@ defineEmits(["clicked"]);
       v-for="(month, index) in months"
       :key="month"
       :class="{ selected: date.month - 1 === index }"
-      @click="$emit('clicked', index)"
+      @click="$emit('clicked', { year: date.year, month: index })"
     >
       {{ month }}
     </div>

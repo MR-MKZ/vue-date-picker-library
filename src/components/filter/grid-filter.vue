@@ -5,7 +5,7 @@ import IconChevron from "@/components/icons/icon-chevron.vue";
 defineProps({
   showMonths: Boolean,
   showYears: Boolean,
-  date: Object,
+  year: Number,
   currentMonthText: String,
   activeLang: String,
 });
@@ -32,7 +32,7 @@ const emit = defineEmits(["update:showMonths", "update:showYears"]);
         emit('update:showMonths', false);
       "
     >
-      <span>{{ activeLang === "gregorian" ? date.year : englishToPersianDigit(date.year) }}</span>
+      <span>{{ activeLang === "gregorian" ? year : englishToPersianDigit(year) }}</span>
       <icon-chevron />
     </div>
   </div>
@@ -41,7 +41,7 @@ const emit = defineEmits(["update:showMonths", "update:showYears"]);
       <!-- <icon-arrow /> -->
     </div>
     <div class="content__filter--item">
-      <span>{{ activeLang === "gregorian" ? date.year : englishToPersianDigit(date.year) }}</span>
+      <span>{{ activeLang === "gregorian" ? year : englishToPersianDigit(year) }}</span>
     </div>
     <div class="content__filter--item">
       <!-- <icon-arrow /> -->
