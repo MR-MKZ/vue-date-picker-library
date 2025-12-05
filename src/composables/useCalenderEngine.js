@@ -1,15 +1,9 @@
 import enabledDate from "@/utils/enabledDate";
 import { ref, computed } from "vue";
 
-export const createCalendarEngine = (
-  adapter,
-  initialYear,
-  initialMonth,
-  prefixAndSuffix = true,
-  limits,
-) => {
-  const year = ref(initialYear);
-  const month = ref(initialMonth);
+export const createCalendarEngine = (adapter, initialDate, limits) => {
+  const year = ref(initialDate.year);
+  const month = ref(initialDate.month);
 
   const setYear = (y) => (year.value = y);
   const setMonth = (m) => (month.value = m);
@@ -21,18 +15,16 @@ export const createCalendarEngine = (
     const prev = adapter.getPreviousMonth(year.value, month.value);
     const daysInPrev = adapter.getDaysInMonth(prev.year, prev.month);
 
-    if (prefixAndSuffix) {
-      const prefix = firstWeekday;
-      for (let i = prefix - 1; i >= 0; i--) {
-        const day = daysInPrev - i;
-        cells.push({
-          year: prev.year,
-          month: prev.month,
-          day,
-          current: false,
-          enable: enabledDate(prev.year, prev.month, day, limits, adapter),
-        });
-      }
+    const prefix = firstWeekday;
+    for (let i = prefix - 1; i >= 0; i--) {
+      const day = daysInPrev - i;
+      cells.push({
+        year: prev.year,
+        month: prev.month,
+        day,
+        current: false,
+        enable: enabledDate(prev.year, prev.month, day, limits, adapter),
+      });
     }
 
     for (let day = 1; day <= daysInMonth; day++) {
@@ -45,18 +37,16 @@ export const createCalendarEngine = (
       });
     }
 
-    if (prefixAndSuffix) {
-      const nextMonth = adapter.getNextMonth(year.value, month.value);
-      const remaining = 35 - cells.length;
-      for (let i = 1; i <= remaining; i++) {
-        cells.push({
-          year: nextMonth.year,
-          month: nextMonth.month,
-          day: i,
-          current: false,
-          enable: enabledDate(nextMonth.year, nextMonth.month, i, limits, adapter),
-        });
-      }
+    const nextMonth = adapter.getNextMonth(year.value, month.value);
+    const remaining = 35 - cells.length;
+    for (let i = 1; i <= remaining; i++) {
+      cells.push({
+        year: nextMonth.year,
+        month: nextMonth.month,
+        day: i,
+        current: false,
+        enable: enabledDate(nextMonth.year, nextMonth.month, i, limits, adapter),
+      });
     }
 
     return cells.slice(0, 37);
