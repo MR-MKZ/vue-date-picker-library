@@ -17,7 +17,6 @@ if you want to use it normal use this code and add the css import to your main.j
 ```vue
 <script setup>
 import { ref } from "vue";
-import DatePicker from "moli-vue-date-picker";
 const date = ref("")
 </script>
 
@@ -27,11 +26,15 @@ const date = ref("")
 ```
 
 ``` js
-import { createApp } from 'vue'
-import App from './App.vue'
-import 'moli-vue-date-picker/dist/moli-vue-date-picker.css';
+import { createApp } from "vue";
+import App from "./App.vue";
+import DatePicker from "moli-vue-date-picker";
+import "moli-vue-date-picker/dist/moli-vue-date-picker.css";
 
-createApp(App).mount('#app')
+const app = createApp(App);
+app.use(DatePicker);
+app.mount("#app");
+
 ```
 
 if you want to access to the events that the library provides, use this code
@@ -84,8 +87,13 @@ calender component accept these common props:
 
 - [Vue.js](https://vuejs.org/) - The Progressive JavaScript Framework.
 - [date-fns](https://date-fns.org/) - A calendar system plugin.
+- [i18n](https://vue-i18n.intlify.dev/) - A
+Internationalization plugin for Vue.js
 
 ## Change log
+
+#### 0.3.0 (2025-12-06)
+- feat: add the localization options for gregorian and jalaali
 
 #### 0.2.0 (2025-12-05)
 - feat: add the defaults values as a props
