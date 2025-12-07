@@ -47,9 +47,13 @@ const processSingleDate = (date, format) => {
 
 const processRange = (range, format) => {
   const [start, end] = range.split("|").map((s) => s.trim());
-  const startDay = processSingleDate(start, format);
-  const endDay = processSingleDate(end, format);
-  return { start: startDay, end: endDay, text: `${startDay.text} | ${endDay.text}` };
+  const startDate = processSingleDate(start, format);
+  const endDate = processSingleDate(end, format);
+  return {
+    start: startDate,
+    end: endDate,
+    text: `${startDate.text ? startDate.text : startDate} | ${endDate.text ? endDate.text : endDate}`,
+  };
 };
 
 const processMultiple = (dates, format) => dates.map((date) => processSingleDate(date, format));

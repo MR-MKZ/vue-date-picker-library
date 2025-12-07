@@ -1,16 +1,16 @@
 <script setup>
 import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { createCalendarEngine } from "@/composables/useCalenderEngine";
+import { useCalendar } from "@/composables/useCalenderCreator";
+import { parseDate } from "@/utils/parseDate";
 import useGetToday from "@/composables/useGetToday";
-import dateFormatter from "@/utils/dateFormatter";
+import dateFormatter from "@/helpers/dateFormatter";
 import MobileDatepicker from "@/components/datepicker/mobile-datepicker.vue";
 import DesktopDatepicker from "@/components/datepicker/desktop-datepicker.vue";
 import BaseInput from "@/components/ui/base-input.vue";
 
 const props = defineProps({
-  format: { default: "YYYY/MM/DD" },
-  min: { type: String, default: "1404/01/01" },
+  min: { type: String, default: "1404/01/08" },
   max: { type: String, default: "2026/12/08" },
   defaults: { type: Array, default: [] },
   headless: { type: Boolean, default: false },
@@ -22,6 +22,7 @@ const props = defineProps({
       return ["range", "single", "multiple"].includes(value);
     },
   },
+  format: "YYYY/MM/DD",
 });
 
 const emit = defineEmits(["close", "open", "changed"]);
@@ -29,24 +30,23 @@ const model = defineModel();
 
 const { locale, getLocaleMessage } = useI18n();
 const showCalender = ref(props.headless);
-const placeholder = ref("");
+const dateText = ref("");
 
 const provider = computed(() => getLocaleMessage(locale.value).provider);
 const months = computed(() => getLocaleMessage(locale.value).months);
 const today = computed(() => useGetToday(locale.value));
-const engine = computed(() =>
-  createCalendarEngine(provider.value, today.value, [props.min, props.max]),
-);
+const engine = computed(() => useCalendar(provider.value, today.value, [props.min, props.max]));
 const defaultDates = computed(() => {
+  const defaults = props.defaults;
   if (props.mode === "single") {
-    if (!props.defaults[0]) return null;
-    const splitedDate = props.defaults[0].split("/");
-    return `${+splitedDate[0]}/${+splitedDate[1]}/${+splitedDate[2]}`;
+    if (!defaults[0]) return null;
+    const [year, month, day] = parseDate(defaults[0]);
+    return `${year}/${month}/${day}`;
   }
   if (props.mode === "range") {
     if (props.defaults.length < 2) return null;
-    const [startYear, startMonth, startDay] = props.defaults[0].split("/");
-    const [endYear, endMonth, endDay] = props.defaults[1].split("/");
+    const [startYear, startMonth, startDay] = parseDate(defaults[0]);
+    const [endYear, endMonth, endDay] = parseDate(defaults[1]);
     return `${startYear}/${startMonth}/${startDay} | ${endYear}/${endMonth}/${endDay}`;
   }
   if (props.mode === "multiple") {
@@ -58,20 +58,18 @@ const defaultDates = computed(() => {
   }
 });
 const years = computed(() => {
-  let start = Number(props.min.split("/")[0]);
-  let end = Number(props.max.split("/")[0]);
-  return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+  let start = parseDate(props.min)[0];
+  let end = parseDate(props.max)[0];
+  return [...Array(end - start + 1).keys()].map((i) => start + i);
 });
 
 const formatDate = (date) => {
   const result = date ? date : defaultDates.value;
   const formattedDate = dateFormatter(result, props.format);
-  if (typeof formattedDate === "object") {
-    placeholder.value = formattedDate.text;
-  } else {
-    placeholder.value = formattedDate;
-  }
-  model.value = formattedDate;
+  if (typeof formattedDate === "object" && !Array.isArray(formattedDate))
+    model.value = formattedDate.text;
+  else model.value = formattedDate;
+
   if (!props.headless) showCalender.value = false;
   else emit("close");
 };
@@ -88,9 +86,8 @@ const closeHandler = () => {
 const changeDateHandler = (item) => {
   if (item?.status) {
     const formattedDate = dateFormatter(item.date, props.format);
-    if (typeof formattedDate === "object") placeholder.value = formattedDate.text;
-    else placeholder.value = formattedDate;
     model.value = formattedDate;
+    if (typeof formattedDate === "object") model.value = formattedDate.text;
   }
   emit("changed");
 };
@@ -125,7 +122,7 @@ const changeDateHandler = (item) => {
       v-if="!headless"
       @click="showCalender = true"
       :value="model"
-      :placeholder="props.mode !== 'multiple' ? placeholder : ''"
+      :placeholder="props.mode !== 'multiple' ? model : ''"
     />
   </div>
 </template>

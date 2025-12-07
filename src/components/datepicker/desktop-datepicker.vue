@@ -18,10 +18,10 @@ const props = defineProps({
 });
 const showMonths = ref(false);
 const showYears = ref(false);
-const { locale, getLocaleMessage } = useI18n();
 const date = reactive({ year: null, month: null, day: null });
 const selectedRange = reactive({ start: {}, end: {} });
 const multipleSelections = reactive([]);
+const { locale, getLocaleMessage } = useI18n();
 
 const currentMonth = computed(() => (date.month ? date.month - 1 : props.todayDate.month - 1));
 const weekdays = computed(() => getLocaleMessage(locale.value).weekdays);
@@ -52,9 +52,7 @@ const handleDayClick = (cell) => {
   }
   if (props.mode === "range" && cell.enable && cell.current) {
     if (!selectedRange.start.day) {
-      selectedRange.start.day = cell.day;
-      selectedRange.start.month = cell.month;
-      selectedRange.start.year = cell.year;
+      selectedRange.start = { day: cell.day, month: cell.month, year: cell.year };
     } else {
       if (selectedRange.start.day > cell.day) return;
       if (selectedRange.start.day === cell.day) {
@@ -62,9 +60,7 @@ const handleDayClick = (cell) => {
         selectedRange.end = {};
         return;
       }
-      selectedRange.end.day = cell.day;
-      selectedRange.end.month = cell.month;
-      selectedRange.end.year = cell.year;
+      selectedRange.end = { day: cell.day, month: cell.month, year: cell.year };
     }
   }
 };

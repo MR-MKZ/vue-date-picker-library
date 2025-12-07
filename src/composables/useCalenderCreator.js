@@ -1,7 +1,7 @@
-import enabledDate from "@/utils/enabledDate";
+import enabledDate from "@/helpers/enabledDate";
 import { ref, computed } from "vue";
 
-export const createCalendarEngine = (provider, initialDate, limits) => {
+export const useCalendar = (provider, initialDate, limits) => {
   const year = ref(initialDate.year);
   const month = ref(initialDate.month);
 

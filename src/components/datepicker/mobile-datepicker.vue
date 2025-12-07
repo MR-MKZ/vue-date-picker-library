@@ -2,7 +2,8 @@
 import { ref, reactive, computed, watch, onMounted, nextTick } from "vue";
 import { useInfiniteScroll } from "@vueuse/core";
 import { englishToPersianDigit, persianToEnglish } from "@/utils/replaceNumbers";
-import wrapList from "@/utils/wrapList";
+import { parseDate } from "@/utils/parseDate";
+import wrapList from "@/helpers/wrapList";
 
 const props = defineProps({
   months: Array,
@@ -13,54 +14,38 @@ const props = defineProps({
   max: String,
 });
 
-const parseDate = (v) => {
-  const [y, m, d] = v.split("/").map(Number);
-  return { y, m, d };
-};
+const emit = defineEmits(["changed"]);
 
 const minDate = parseDate(props.min);
 const maxDate = parseDate(props.max);
 
-const clamp = (y, m, d) => {
-  const num = y * 10000 + m * 100 + d;
-  const minNum = minDate.y * 10000 + minDate.m * 100 + minDate.d;
-  const maxNum = maxDate.y * 10000 + maxDate.m * 100 + maxDate.d;
-  if (num < minNum) return minNum;
-  if (num > maxNum) return maxNum;
-  return num;
-};
+const date = reactive({ ...props.today });
+const dayRef = ref(null);
+const monthRef = ref(null);
+const yearRef = ref(null);
+const ignoreInitialEmit = ref(true);
 
-const filteredYears = computed(() => props.years.filter((y) => y >= minDate.y && y <= maxDate.y));
+const currentDays = computed(() => wrapList(filteredDays.value));
+const currentMonths = computed(() => wrapList(filteredMonths.value));
+const currentYears = computed(() => wrapList(props.years));
 
 const filteredMonths = computed(() => {
-  if (date.year === minDate.y && date.year === maxDate.y)
-    return props.months.filter((_, idx) => idx + 1 >= minDate.m && idx + 1 <= maxDate.m);
-  if (date.year === minDate.y) return props.months.filter((_, idx) => idx + 1 >= minDate.m);
-  if (date.year === maxDate.y) return props.months.filter((_, idx) => idx + 1 <= maxDate.m);
+  if (date.year === minDate[0] && date.year === maxDate[0])
+    return props.months.filter((_, idx) => idx + 1 >= minDate[1] && idx + 1 <= maxDate[1]);
+  if (date.year === minDate[0]) return props.months.filter((_, idx) => idx + 1 >= minDate[1]);
+  if (date.year === maxDate[0]) return props.months.filter((_, idx) => idx + 1 <= maxDate[1]);
   return props.months;
 });
 
 const filteredDays = computed(() => {
   const grid = props.engine.grid.value.filter((i) => i.current);
   const days = grid.map((i) => i.day);
-  if (date.year === minDate.y && date.month === minDate.m)
-    return days.filter((d) => d >= minDate.d);
-  if (date.year === maxDate.y && date.month === maxDate.m)
-    return days.filter((d) => d <= maxDate.d);
+  if (date.year === minDate[0] && date.month === minDate[1])
+    return days.filter((day) => day >= minDate[2]);
+  if (date.year === maxDate[0] && date.month === maxDate[1])
+    return days.filter((day) => day <= maxDate[2]);
   return days;
 });
-
-const date = reactive({ ...props.today });
-const selectedDate = reactive({ day: date.day, month: date.month, year: date.year });
-const ignoreInitialEmit = ref(true);
-
-const dayRef = ref(null);
-const monthRef = ref(null);
-const yearRef = ref(null);
-
-const currentDays = computed(() => wrapList(filteredDays.value));
-const currentMonths = computed(() => wrapList(filteredMonths.value));
-const currentYears = computed(() => wrapList(filteredYears.value));
 
 const pickCenterItem = (container) => {
   if (!container) return null;
@@ -80,16 +65,22 @@ const pickCenterItem = (container) => {
 };
 
 const clampAndApply = () => {
-  const num = clamp(date.year, date.month, date.day);
+  const num = clamp(date);
   const year = Math.floor(num / 10000);
   const month = Math.floor((num % 10000) / 100);
   const day = num % 100;
   date.year = year;
   date.month = month;
   date.day = day;
-  selectedDate.year = year;
-  selectedDate.month = month;
-  selectedDate.day = day;
+};
+
+const clamp = ({ year, month, day }) => {
+  const num = year * 10000 + month * 100 + day;
+  const minNum = minDate[0] * 10000 + minDate[1] * 100 + minDate[2];
+  const maxNum = maxDate[0] * 10000 + maxDate[1] * 100 + maxDate[2];
+  if (num < minNum) return minNum;
+  if (num > maxNum) return maxNum;
+  return num;
 };
 
 watch([() => date.year, () => date.month], () => {
@@ -98,18 +89,9 @@ watch([() => date.year, () => date.month], () => {
 });
 
 const handlers = {
-  day: (v) => {
-    date.day = Number(persianToEnglish(v));
-    clampAndApply();
-  },
-  month: (v) => {
-    date.month = filteredMonths.value.indexOf(v) + 1;
-    clampAndApply();
-  },
-  year: (v) => {
-    date.year = Number(persianToEnglish(v));
-    clampAndApply();
-  },
+  day: (num) => (date.day = Number(persianToEnglish(num))),
+  month: (num) => (date.month = filteredMonths.value.indexOf(num) + 1),
+  year: (num) => (date.year = Number(persianToEnglish(num))),
 };
 
 const makeScrollHandler = (ref, key) => {
@@ -117,6 +99,7 @@ const makeScrollHandler = (ref, key) => {
     const element = pickCenterItem(ref.value);
     if (!element) return;
     handlers[key](element.innerText);
+    clampAndApply();
   };
 };
 
@@ -124,17 +107,15 @@ const handleDayScroll = makeScrollHandler(dayRef, "day");
 const handleMonthScroll = makeScrollHandler(monthRef, "month");
 const handleYearScroll = makeScrollHandler(yearRef, "year");
 
-useInfiniteScroll(dayRef, () => filteredDays.value, { distance: 32 });
-useInfiniteScroll(monthRef, () => filteredMonths.value, { distance: 32 });
-useInfiniteScroll(yearRef, () => filteredYears.value, { distance: 32 });
+useInfiniteScroll(dayRef, () => filteredDays.value);
+useInfiniteScroll(monthRef, () => filteredMonths.value);
+useInfiniteScroll(yearRef, () => props.years);
 
-const emit = defineEmits(["changed"]);
-
-watch(selectedDate, () => {
+watch(date, () => {
   if (ignoreInitialEmit.value) return;
   emit("changed", {
-    status: "mobile",
-    date: `${selectedDate.year}/${selectedDate.month}/${selectedDate.day}`,
+    status: true,
+    date: `${date.year}/${date.month}/${date.day}`,
   });
 });
 
@@ -146,7 +127,6 @@ const scrollToToday = (ref) => {
 onMounted(async () => {
   await nextTick();
   [dayRef, monthRef, yearRef].forEach(scrollToToday);
-  await nextTick();
   ignoreInitialEmit.value = false;
 });
 </script>
