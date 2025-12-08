@@ -105,7 +105,9 @@ const submitSelection = () => {
       :current-month-text="providerData.currentMonthText.value"
       :current-view="currentView"
       :year="
-        selectedDates.single.year ? selectedDates.single.year : calenderEngine.grid.value[0].year
+        selectedDates.single.year
+          ? selectedDates.single.year
+          : calenderEngine.calendarGrid.value[0].year
       "
       :locale="locale"
       @update:current-view="currentView = $event"

@@ -1,56 +1,63 @@
 import enabledDate from "@/helpers/enabledDate";
 import { ref, computed } from "vue";
 
+const DAYS_IN_GRID = 35;
+
 export const useCalendar = (provider, initialDate, limits) => {
   const year = ref(initialDate.year);
   const month = ref(initialDate.month);
+  const enabledCache = new Map();
 
-  const setYear = (y) => (year.value = y);
-  const setMonth = (m) => (month.value = m);
+  const updateYear = (y) => (year.value = y);
+  const updateMonth = (m) => (month.value = m);
 
-  const grid = computed(() => {
+  const calendarGrid = computed(() => {
     const cells = [];
-    const daysInMonth = provider.getDaysInMonth(year.value, month.value);
+
+    const daysInCurrentMonth = provider.getDaysInMonth(year.value, month.value);
     const firstWeekday = provider.getFirstWeekday(year.value, month.value);
-    const prev = provider.getPreviousMonth(year.value, month.value);
-    const daysInPrev = provider.getDaysInMonth(prev.year, prev.month);
 
-    const prefix = firstWeekday;
-    for (let i = prefix - 1; i >= 0; i--) {
-      const day = daysInPrev - i;
-      cells.push({
-        year: prev.year,
-        month: prev.month,
-        day,
-        current: false,
-        enable: enabledDate(prev.year, prev.month, day, limits, provider),
-      });
+    const { year: previousYear, month: previousMonth } = provider.getPreviousMonth(
+      year.value,
+      month.value,
+    );
+    const daysInPreviousMonth = provider.getDaysInMonth(previousYear, previousMonth);
+
+    for (let i = firstWeekday - 1; i >= 0; i--) {
+      const day = daysInPreviousMonth - i;
+      cells.push(createCell(previousYear, previousMonth, day, false));
     }
 
-    for (let day = 1; day <= daysInMonth; day++) {
-      cells.push({
-        year: year.value,
-        month: month.value,
-        day,
-        current: true,
-        enable: enabledDate(year.value, month.value, day, limits, provider),
-      });
+    for (let day = 1; day <= daysInCurrentMonth; day++) {
+      cells.push(createCell(year.value, month.value, day, true));
     }
 
-    const nextMonth = provider.getNextMonth(year.value, month.value);
-    const remaining = 35 - cells.length;
-    for (let i = 1; i <= remaining; i++) {
-      cells.push({
-        year: nextMonth.year,
-        month: nextMonth.month,
-        day: i,
-        current: false,
-        enable: enabledDate(nextMonth.year, nextMonth.month, i, limits, provider),
-      });
+    const { year: nextYear, month: nextMonth } = provider.getNextMonth(year.value, month.value);
+    const remainingCells = DAYS_IN_GRID - cells.length;
+    for (let day = 1; day <= remainingCells; day++) {
+      cells.push(createCell(nextYear, nextMonth, day, false));
     }
 
-    return cells.slice(0, 37);
+    return cells;
   });
 
-  return { setYear, setMonth, grid };
+  function isEnabled(year, month, day) {
+    const key = `${year}-${month}-${day}`;
+    if (!enabledCache.has(key)) {
+      enabledCache.set(key, enabledDate(year, month, day, limits));
+    }
+    return enabledCache.get(key);
+  }
+
+  function createCell(cellYear, cellMonth, day, isCurrent) {
+    return {
+      year: cellYear,
+      month: cellMonth,
+      day,
+      current: isCurrent,
+      enable: isEnabled(cellYear, cellMonth, day),
+    };
+  }
+
+  return { updateYear, updateMonth, calendarGrid };
 };

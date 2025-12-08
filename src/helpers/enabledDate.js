@@ -9,7 +9,6 @@ const enabledDate = (year, month, day, limits) => {
   const target = year * 10000 + month * 100 + day;
   const minValue = parse(limits[0]);
   const maxValue = parse(limits[1]);
-
   return target >= minValue && target <= maxValue;
 };
 

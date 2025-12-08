@@ -17,7 +17,7 @@ defineEmits(["clicked"]);
 
 const inRangeWeeks = computed(() => {
   if (props.selectionMode !== "range") return [];
-  const cells = props.calenderEngine.grid.value;
+  const cells = props.calenderEngine.calendarGrid.value;
   const startIndex = cells.findIndex((cell) => sameDate(cell, props.selectedDates.range.start));
   const endIndex = cells.findIndex((cell) => sameDate(cell, props.selectedDates.range.end));
 
@@ -79,7 +79,7 @@ const getCellClasses = (cell, index) => {
     ></div>
     <div
       class="content__days__day"
-      v-for="(cell, i) in calenderEngine.grid.value"
+      v-for="(cell, i) in calenderEngine.calendarGrid.value"
       :key="i"
       :class="getCellClasses(cell, i)"
       @click="$emit('clicked', cell)"

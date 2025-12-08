@@ -40,7 +40,7 @@ const filteredMonths = computed(() => {
 });
 
 const filteredDays = computed(() => {
-  const grid = props.calenderEngine.grid.value.filter((i) => i.current);
+  const grid = props.calenderEngine.calendarGrid.value.filter((i) => i.current);
   const days = grid.map((i) => i.day);
   if (selectedDate.year === minDate[0] && selectedDate.month === minDate[1])
     return days.filter((day) => day >= minDate[2]);
