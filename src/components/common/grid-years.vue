@@ -1,21 +1,26 @@
 <script setup>
 import { englishToPersianDigit } from "@/utils/replaceNumbers";
 
-defineProps({ showYears: Boolean, date: Object, years: Array, activeLang: String });
+defineProps({
+  currentView: { type: String, required: true },
+  selectedDates: { type: Object, required: true },
+  availableYears: { type: Array, required: true },
+  locale: { type: String, default: "jalaali" },
+});
 
 defineEmits(["clicked"]);
 </script>
 
 <template>
-  <div class="content__years" v-if="showYears">
+  <div class="content__years" v-if="currentView === 'years'">
     <div
       class="content__years__year"
-      v-for="year in years"
+      v-for="year in availableYears"
       :key="year"
-      :class="{ 'content__years__year--selected': date.year === year }"
+      :class="{ 'content__years__year--selected': selectedDates.year === year }"
       @click="$emit('clicked', year)"
     >
-      {{ activeLang === "gregorian" ? year : englishToPersianDigit(year) }}
+      {{ locale === "gregorian" ? year : englishToPersianDigit(year) }}
     </div>
   </div>
 </template>

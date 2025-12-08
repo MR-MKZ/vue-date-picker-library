@@ -134,6 +134,7 @@
 
   &__days {
     display: grid;
+    justify-content: space-between;
     grid-template-columns: repeat(7, $day-size);
     grid-auto-rows: $day-size;
     gap: $space-lg;

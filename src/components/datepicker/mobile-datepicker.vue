@@ -6,48 +6,50 @@ import { parseDate } from "@/utils/parseDate";
 import wrapList from "@/helpers/wrapList";
 
 const props = defineProps({
-  months: Array,
-  years: Array,
-  engine: Object,
-  today: Object,
-  min: String,
-  max: String,
+  availableMonths: { type: Array, required: true },
+  availableYears: { type: Array, required: true },
+  calenderEngine: { type: Object, required: true },
+  today: { type: Object, required: true },
+  minDate: { type: String, default: "1404/01/08", required: true },
+  maxDate: { type: String, default: "2026/12/08", required: true },
 });
 
-const emit = defineEmits(["changed"]);
+const emit = defineEmits(["changed", "update-month", "update-year"]);
 
-const minDate = parseDate(props.min);
-const maxDate = parseDate(props.max);
+const minDate = parseDate(props.minDate);
+const maxDate = parseDate(props.maxDate);
 
-const date = reactive({ ...props.today });
-const dayRef = ref(null);
-const monthRef = ref(null);
-const yearRef = ref(null);
-const ignoreInitialEmit = ref(true);
+const selectedDate = reactive({ ...props.today });
+const dayColumnRef = ref(null);
+const monthColumnRef = ref(null);
+const yearColumnRef = ref(null);
+const skipInitialEmit = ref(true);
 
-const currentDays = computed(() => wrapList(filteredDays.value));
-const currentMonths = computed(() => wrapList(filteredMonths.value));
-const currentYears = computed(() => wrapList(props.years));
+const scrollableDays = computed(() => wrapList(filteredDays.value));
+const scrollableMonths = computed(() => wrapList(filteredMonths.value));
+const scrollableYears = computed(() => wrapList(props.availableYears));
 
 const filteredMonths = computed(() => {
-  if (date.year === minDate[0] && date.year === maxDate[0])
-    return props.months.filter((_, idx) => idx + 1 >= minDate[1] && idx + 1 <= maxDate[1]);
-  if (date.year === minDate[0]) return props.months.filter((_, idx) => idx + 1 >= minDate[1]);
-  if (date.year === maxDate[0]) return props.months.filter((_, idx) => idx + 1 <= maxDate[1]);
-  return props.months;
+  if (selectedDate.year === minDate[0] && selectedDate.year === maxDate[0])
+    return props.availableMonths.filter((_, idx) => idx + 1 >= minDate[1] && idx + 1 <= maxDate[1]);
+  if (selectedDate.year === minDate[0])
+    return props.availableMonths.filter((_, idx) => idx + 1 >= minDate[1]);
+  if (selectedDate.year === maxDate[0])
+    return props.availableMonths.filter((_, idx) => idx + 1 <= maxDate[1]);
+  return props.availableMonths;
 });
 
 const filteredDays = computed(() => {
-  const grid = props.engine.grid.value.filter((i) => i.current);
+  const grid = props.calenderEngine.grid.value.filter((i) => i.current);
   const days = grid.map((i) => i.day);
-  if (date.year === minDate[0] && date.month === minDate[1])
+  if (selectedDate.year === minDate[0] && selectedDate.month === minDate[1])
     return days.filter((day) => day >= minDate[2]);
-  if (date.year === maxDate[0] && date.month === maxDate[1])
+  if (selectedDate.year === maxDate[0] && selectedDate.month === maxDate[1])
     return days.filter((day) => day <= maxDate[2]);
   return days;
 });
 
-const pickCenterItem = (container) => {
+const getCenterVisibleItem = (container) => {
   if (!container) return null;
   const center = container.scrollTop + container.clientHeight / 2;
   const items = container.children;
@@ -64,17 +66,17 @@ const pickCenterItem = (container) => {
   return best;
 };
 
-const clampAndApply = () => {
-  const num = clamp(date);
+const clampSelectedDateWithinRange = () => {
+  const num = clampDateValue(selectedDate);
   const year = Math.floor(num / 10000);
   const month = Math.floor((num % 10000) / 100);
   const day = num % 100;
-  date.year = year;
-  date.month = month;
-  date.day = day;
+  selectedDate.year = year;
+  selectedDate.month = month;
+  selectedDate.day = day;
 };
 
-const clamp = ({ year, month, day }) => {
+const clampDateValue = ({ year, month, day }) => {
   const num = year * 10000 + month * 100 + day;
   const minNum = minDate[0] * 10000 + minDate[1] * 100 + minDate[2];
   const maxNum = maxDate[0] * 10000 + maxDate[1] * 100 + maxDate[2];
@@ -83,88 +85,91 @@ const clamp = ({ year, month, day }) => {
   return num;
 };
 
-watch([() => date.year, () => date.month], () => {
-  props.engine.setYear(date.year);
-  props.engine.setMonth(date.month);
+watch([() => selectedDate.year, () => selectedDate.month], () => {
+  emit("update-year", selectedDate.year);
+  emit("update-month", selectedDate.month);
 });
 
 const handlers = {
-  day: (num) => (date.day = Number(persianToEnglish(num))),
-  month: (num) => (date.month = filteredMonths.value.indexOf(num) + 1),
-  year: (num) => (date.year = Number(persianToEnglish(num))),
+  day: (num) => (selectedDate.day = Number(persianToEnglish(num))),
+  month: (num) => (selectedDate.month = filteredMonths.value.indexOf(num) + 1),
+  year: (num) => (selectedDate.year = Number(persianToEnglish(num))),
 };
 
 const makeScrollHandler = (ref, key) => {
   return () => {
-    const element = pickCenterItem(ref.value);
+    const element = getCenterVisibleItem(ref.value);
     if (!element) return;
     handlers[key](element.innerText);
-    clampAndApply();
+    clampSelectedDateWithinRange();
   };
 };
 
-const handleDayScroll = makeScrollHandler(dayRef, "day");
-const handleMonthScroll = makeScrollHandler(monthRef, "month");
-const handleYearScroll = makeScrollHandler(yearRef, "year");
+const handleDayScroll = makeScrollHandler(dayColumnRef, "day");
+const handleMonthScroll = makeScrollHandler(monthColumnRef, "month");
+const handleYearScroll = makeScrollHandler(yearColumnRef, "year");
 
-useInfiniteScroll(dayRef, () => filteredDays.value);
-useInfiniteScroll(monthRef, () => filteredMonths.value);
-useInfiniteScroll(yearRef, () => props.years);
+useInfiniteScroll(dayColumnRef, () => filteredDays.value);
+useInfiniteScroll(monthColumnRef, () => filteredMonths.value);
+useInfiniteScroll(yearColumnRef, () => props.availableYears);
 
-watch(date, () => {
-  if (ignoreInitialEmit.value) return;
+watch(selectedDate, () => {
+  if (skipInitialEmit.value) return;
   emit("changed", {
     status: true,
-    date: `${date.year}/${date.month}/${date.day}`,
+    selectedDate: `${selectedDate.year}/${selectedDate.month}/${selectedDate.day}`,
   });
 });
 
-const scrollToToday = (ref) => {
+const scrollColumnToCurrentDate = (ref) => {
   const element = ref.value?.querySelector(".calender__block__text--today");
   if (element) element.scrollIntoView({ block: "center" });
 };
 
 onMounted(async () => {
   await nextTick();
-  [dayRef, monthRef, yearRef].forEach(scrollToToday);
-  ignoreInitialEmit.value = false;
+  [dayColumnRef, monthColumnRef, yearColumnRef].forEach(scrollColumnToCurrentDate);
+  skipInitialEmit.value = false;
 });
 </script>
 
 <template>
   <div class="calender">
-    <div class="calender__block" ref="dayRef" @scroll="handleDayScroll">
+    <div class="calender__block" ref="dayColumnRef" @scroll="handleDayScroll">
       <span
-        v-for="(item, i) in currentDays"
+        v-for="(item, i) in scrollableDays"
         :key="i"
         class="calender__block__text"
         :class="{
-          'calender__block__text--today': date.day === item.value && item.zone === 'original',
+          'calender__block__text--today':
+            selectedDate.day === item.value && item.zone === 'original',
         }"
       >
         {{ englishToPersianDigit(item.value) }}
       </span>
     </div>
-    <div class="calender__block" ref="monthRef" @scroll="handleMonthScroll">
+    <div class="calender__block" ref="monthColumnRef" @scroll="handleMonthScroll">
       <span
-        v-for="(item, i) in currentMonths"
+        v-for="(item, i) in scrollableMonths"
         :key="i"
         class="calender__block__text"
         :class="{
           'calender__block__text--today':
-            date.month === filteredMonths.indexOf(item.value) + 1 && item.zone === 'original',
+            selectedDate.month === filteredMonths.indexOf(item.value) + 1 &&
+            item.zone === 'original',
         }"
       >
         {{ item.value }}
       </span>
     </div>
-    <div class="calender__block" ref="yearRef" @scroll="handleYearScroll">
+    <div class="calender__block" ref="yearColumnRef" @scroll="handleYearScroll">
       <span
-        v-for="(item, i) in currentYears"
+        v-for="(item, i) in scrollableYears"
         :key="i"
         class="calender__block__text"
         :class="{
-          'calender__block__text--today': date.year === item.value && item.zone === 'original',
+          'calender__block__text--today':
+            selectedDate.year === item.value && item.zone === 'original',
         }"
       >
         {{ item.value }}

@@ -26,39 +26,44 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["close", "open", "changed"]);
-const model = defineModel();
+const inputValue = defineModel();
 
 const { locale, getLocaleMessage } = useI18n();
 const today = computed(() => useGetToday(locale.value));
 const { defaultDates } = useDateDefaults(props);
-const { engine, months, years } = useCalenderCore(props, today, locale, getLocaleMessage);
-const showCalender = ref(props.headless);
+const { calenderEngine, availableMonths, availableYears } = useCalenderCore(
+  props,
+  today,
+  locale,
+  getLocaleMessage,
+);
+const isCalendarVisible = ref(props.headless);
 
 const formatDate = (date) => {
   const result = date ? date : defaultDates.value;
   const formattedDate = dateFormatter(result, props.format);
   if (typeof formattedDate === "object" && !Array.isArray(formattedDate))
-    model.value = formattedDate.text;
-  else model.value = formattedDate;
+    inputValue.value = formattedDate.text;
+  else inputValue.value = formattedDate;
 
-  if (!props.headless) showCalender.value = false;
+  if (!props.headless) isCalendarVisible.value = false;
   else emit("close");
 };
 
-watch(showCalender, (value) => {
+watch(isCalendarVisible, (value) => {
   if (!props.headless && value) emit("open");
 });
 
 const closeHandler = () => {
-  if (!props.headless) showCalender.value = false;
+  if (!props.headless) isCalendarVisible.value = false;
   emit("close");
 };
 
 const changeDateHandler = (item) => {
   if (item?.status) {
-    const formattedDate = dateFormatter(item.date, props.format);
-    model.value = formattedDate;
-    if (typeof formattedDate === "object") model.value = formattedDate.text;
+    const formattedDate = dateFormatter(item.selectedDate, props.format);
+    inputValue.value = formattedDate;
+    if (typeof formattedDate === "object") inputValue.value = formattedDate.text;
   }
   emit("changed");
 };
@@ -66,34 +71,36 @@ const changeDateHandler = (item) => {
 
 <template>
   <div class="datepicker">
-    <div v-if="showCalender" class="overlay" @click="closeHandler"></div>
-    <div class="container" v-if="showCalender">
+    <div v-if="isCalendarVisible" class="overlay" @click="closeHandler"></div>
+    <div class="container" v-if="isCalendarVisible">
       <desktop-datepicker
-        :months="months"
-        :years="years"
+        :availableMonths="availableMonths"
+        :availableYears="availableYears"
         @date="formatDate"
         @changed="changeDateHandler"
         @closed="closeHandler"
-        :mode="props.mode"
-        :engine="engine"
-        :today-date="today"
+        @update-month="calenderEngine.setMonth($event)"
+        @update-year="calenderEngine.setYear($event)"
+        :selectionMode="props.mode"
+        :calender-engine="calenderEngine"
+        :today="today"
       />
       <mobile-datepicker
-        :months="months"
-        :showCalender="showCalender"
-        :years="years"
+        :availableMonths="availableMonths"
+        :availableYears="availableYears"
         @changed="changeDateHandler"
-        :engine="engine"
+        @update-month="calenderEngine.setMonth($event)"
+        @update-year="calenderEngine.setYear($event)"
+        :calender-engine="calenderEngine"
         :today="today"
-        :min="min"
-        :max="max"
+        :min-date="min"
+        :max-date="max"
       />
     </div>
     <base-input
       v-if="!headless"
-      @click="showCalender = true"
-      :value="model"
-      :placeholder="props.mode !== 'multiple' ? model : ''"
+      @click="isCalendarVisible = true"
+      :placeholder="props.mode !== 'multiple' ? inputValue : ''"
     />
   </div>
 </template>

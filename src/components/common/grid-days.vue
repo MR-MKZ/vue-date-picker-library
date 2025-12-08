@@ -4,23 +4,22 @@ import { englishToPersianDigit } from "@/utils/replaceNumbers";
 import sameDate from "@/utils/sameDate";
 
 const props = defineProps({
-  showMonths: Boolean,
-  showYears: Boolean,
-  mode: String,
-  todayDate: Object,
-  date: Object,
-  engine: Object,
-  activeLang: String,
-  todayText: String,
+  currentView: { type: String, required: true },
+  selectedDates: { type: Object, required: true },
+  selectionMode: { type: String, required: true },
+  today: { type: Object, required: true },
+  calenderEngine: { type: Object, required: true },
+  locale: { type: String, default: "jalaali" },
+  todayText: { type: String, required: true },
 });
 
 defineEmits(["clicked"]);
 
 const inRangeWeeks = computed(() => {
-  if (props.mode !== "range") return [];
-  const cells = props.engine.grid.value;
-  const startIndex = cells.findIndex((cell) => sameDate(cell, props.date.range.start));
-  const endIndex = cells.findIndex((cell) => sameDate(cell, props.date.range.end));
+  if (props.selectionMode !== "range") return [];
+  const cells = props.calenderEngine.grid.value;
+  const startIndex = cells.findIndex((cell) => sameDate(cell, props.selectedDates.range.start));
+  const endIndex = cells.findIndex((cell) => sameDate(cell, props.selectedDates.range.end));
 
   if (startIndex === -1 || endIndex === -1) return [];
   const weeks = [];
@@ -48,14 +47,14 @@ const isCellInRange = (index) => {
 
 const getCellClasses = (cell, index) => {
   const selected =
-    props.mode === "single"
-      ? sameDate(props.date.single, cell)
-      : props.date.multiple.some((date) => sameDate(date, cell)) &&
+    props.selectionMode === "single"
+      ? sameDate(props.selectedDates.single, cell)
+      : props.selectedDates.multiple.some((date) => sameDate(date, cell)) &&
         cell.enable &&
-        props.mode !== "range" &&
+        props.selectionMode !== "range" &&
         cell.current;
-  const isRangeStart = sameDate(props.date.range.start, cell);
-  const isRangeEnd = sameDate(props.date.range.end, cell);
+  const isRangeStart = sameDate(props.selectedDates.range.start, cell);
+  const isRangeEnd = sameDate(props.selectedDates.range.end, cell);
 
   return {
     "content__days__day--selected": selected,
@@ -68,7 +67,7 @@ const getCellClasses = (cell, index) => {
 </script>
 
 <template>
-  <div class="content__days" v-if="!showMonths && !showYears">
+  <div class="content__days" v-if="currentView === 'days'">
     <div
       v-for="(week, wIndex) in inRangeWeeks"
       :key="wIndex"
@@ -80,13 +79,13 @@ const getCellClasses = (cell, index) => {
     ></div>
     <div
       class="content__days__day"
-      v-for="(cell, i) in engine.grid.value"
+      v-for="(cell, i) in calenderEngine.grid.value"
       :key="i"
       :class="getCellClasses(cell, i)"
       @click="$emit('clicked', cell)"
     >
-      {{ activeLang === "gregorian" ? cell.day : englishToPersianDigit(cell.day) }}
-      <span class="content__days__day--today" v-if="sameDate(cell, todayDate) && cell.current">
+      {{ locale === "gregorian" ? cell.day : englishToPersianDigit(cell.day) }}
+      <span class="content__days__day--today" v-if="sameDate(cell, today) && cell.current">
         {{ todayText }}
       </span>
     </div>

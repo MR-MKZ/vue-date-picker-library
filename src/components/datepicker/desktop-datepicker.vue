@@ -11,123 +11,144 @@ import GridMonths from "@/components/common/grid-months.vue";
 import GridYears from "@/components/common/grid-years.vue";
 
 const props = defineProps({
-  mode: String,
-  months: Array,
-  years: Array,
-  todayDate: Object,
-  engine: Object,
+  selectionMode: {
+    type: String,
+    default: "single",
+    validator: (value) => ["single", "range", "multiple"].includes(value),
+  },
+  availableMonths: { type: Array, required: true },
+  availableYears: { type: Array, required: true },
+  today: { type: Object, required: true },
+  calenderEngine: { type: Object, required: true },
 });
-const showMonths = ref(false);
-const showYears = ref(false);
-const date = reactive({
+const currentView = ref("days");
+const selectedDates = reactive({
   single: { year: null, month: null, day: null },
   range: { start: {}, end: {} },
   multiple: [],
 });
 const { locale, getLocaleMessage } = useI18n();
-const data = useGetProvidersData(getLocaleMessage, locale, date.single, props.todayDate);
+const providerData = useGetProvidersData(
+  getLocaleMessage,
+  locale,
+  selectedDates.single,
+  props.today,
+);
 
-watch([date.single], () => {
-  date.range = { start: {}, end: {} };
-  props.engine.setMonth(date.single.month);
-  props.engine.setYear(date.single.year);
+watch([selectedDates.single], () => {
+  selectedDates.range = { start: {}, end: {} };
+  syncEngine(selectedDates.single.year, selectedDates.single.month);
 });
 
-watch([date.range, date.single, date.multiple], () => emit("changed"));
+watch([selectedDates.range, selectedDates.single, selectedDates.multiple], () => emit("changed"));
 
-const handleDayClick = (cell) => {
-  switch (props.mode) {
-    case "single":
-      return updateSingle(cell, date);
-    case "multiple":
-      return updateMultiple(cell, date);
-    case "range":
-      return updateRange(cell, date);
-  }
+const selectionHandlers = {
+  single: (cell) => updateSingle(cell, selectedDates),
+  multiple: (cell) => updateMultiple(cell, selectedDates),
+  range: (cell) => updateRange(cell, selectedDates),
 };
 
+const handleDayClick = (cell) => selectionHandlers[props.selectionMode]?.(cell);
+
 const handleMonthClick = (selectedDate) => {
-  date.single.month = selectedDate.month + 1;
-  date.single.day = null;
-  if (!date.single.year) date.single.year = selectedDate.year;
-  showMonths.value = false;
+  selectedDates.single.month = selectedDate.month + 1;
+  selectedDates.single.day = null;
+  if (!selectedDates.single.year) selectedDates.single.year = selectedDate.year;
+  currentView.value = "days";
+};
+
+const syncEngine = (year, month) => {
+  emit("update-year", year);
+  emit("update-month", month);
 };
 
 const handleYearClick = (year) => {
-  date.single.year = year;
-  showYears.value = false;
-  showMonths.value = true;
+  selectedDates.single.year = year;
+  currentView.value = "months";
 };
 
-const emit = defineEmits(["date", "changed", "closed"]);
+const emit = defineEmits(["date", "changed", "closed", "update-year", "update-month"]);
 
-const clickHandler = () => {
-  let finalDate;
-  if (props.mode === "range") {
-    const { year: startYear, month: startMonth, day: startDay } = date.range.start;
-    const { year: endYear, month: endMonth, day: endDay } = date.range.end;
-    const textTemplate = `${startYear}/${startMonth}/${startDay} | ${endYear}/${endMonth}/${endDay}`;
-    finalDate = startDay && endDay ? textTemplate : null;
+function buildOutputDateValue() {
+  switch (props.selectionMode) {
+    case "range": {
+      const s = selectedDates.range.start;
+      const e = selectedDates.range.end;
+      if (!s.day || !e.day) return null;
+      return `${s.year}/${s.month}/${s.day} | ${e.year}/${e.month}/${e.day}`;
+    }
+    case "multiple":
+      return selectedDates.multiple.length ? selectedDates.multiple : null;
+    case "single": {
+      const s = selectedDates.single;
+      return s.day ? `${s.year}/${s.month}/${s.day}` : null;
+    }
   }
-  if (props.mode === "multiple") finalDate = date.multiple.length > 0 ? date.multiple : null;
-  if (props.mode === "single") {
-    finalDate = date.single.day
-      ? `${date.single.year}/${date.single.month}/${date.single.day}`
-      : null;
-  }
+  return null;
+}
+
+const submitSelection = () => {
+  const finalDate = buildOutputDateValue();
   emit("date", finalDate);
   emit("closed");
-  props.engine.setMonth(props.todayDate.month);
-  props.engine.setYear(props.todayDate.year);
+  syncEngine(props.today.year, props.today.month);
 };
 </script>
 
 <template>
   <header class="header">
     <icon-close class="header__close" @click="$emit('closed')" />
-    <p class="header__title">{{ data.mainText }}</p>
+    <p class="header__title">{{ providerData.mainText }}</p>
   </header>
   <div class="content">
     <grid-filter
-      :currentMonthText="data.currentMonthText.value"
-      :show-years="showYears"
-      :year="date.single.year ? date.single.year : engine.grid.value[0].year"
-      :active-lang="locale"
-      @update:showYears="(e) => ((showYears = e), (showMonths = !e))"
-      @update:showMonths="(e) => ((showYears = !e), (showMonths = e))"
+      :current-month-text="providerData.currentMonthText.value"
+      :current-view="currentView"
+      :year="
+        selectedDates.single.year ? selectedDates.single.year : calenderEngine.grid.value[0].year
+      "
+      :locale="locale"
+      @update:current-view="currentView = $event"
     />
-    <div class="content__weekdays" v-if="!showMonths && !showYears" :dir="data.direction.value">
-      <span class="content__weekdays__day" v-for="weekday in data?.weekdays.value" :key="weekday">
+    <div
+      class="content__weekdays"
+      v-if="currentView === 'days'"
+      :dir="providerData.direction.value"
+    >
+      <span
+        class="content__weekdays__day"
+        v-for="weekday in providerData?.weekdays.value"
+        :key="weekday"
+      >
         {{ weekday }}
       </span>
     </div>
     <grid-days
-      :mode="mode"
-      :show-months="showMonths"
-      :showYears="showYears"
-      :date="date"
-      :todayDate="todayDate"
-      :active-lang="locale"
-      :today-text="data.todayText.value"
-      :engine="engine"
-      :dir="data.direction.value"
+      :selection-mode="selectionMode"
+      :current-view="currentView"
+      :selected-dates="selectedDates"
+      :today="today"
+      :locale="locale"
+      :today-text="providerData.todayText.value"
+      :calender-engine="calenderEngine"
+      :dir="providerData.direction.value"
       @clicked="handleDayClick"
     />
     <grid-months
-      :show-months="showMonths"
-      :date="date.single.month ? date.single : todayDate"
-      :months="months"
-      :dir="data.direction.value"
+      :current-view="currentView"
+      :selected-dates="selectedDates.single.month ? selectedDates.single : today"
+      :available-months="availableMonths"
+      :dir="providerData.direction.value"
       @clicked="handleMonthClick"
     />
     <grid-years
-      :show-years="showYears"
-      :date="date.single.month ? date.single : todayDate"
-      :years="years"
-      :dir="data.direction.value"
+      :current-view="currentView"
+      :selected-dates="selectedDates.single.month ? selectedDates.single : today"
+      :available-years="availableYears"
+      :dir="providerData.direction.value"
       @clicked="handleYearClick"
-      :active-lang="locale"
+      :locale="locale"
     />
-    <base-button :text="locale === 'jalaali' ? 'تایید' : 'submit'" @click="clickHandler" />
+    <base-button :text="locale === 'jalaali' ? 'تایید' : 'submit'" @click="submitSelection" />
   </div>
 </template>
