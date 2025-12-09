@@ -1,6 +1,6 @@
 {
   "name": "moli-vue-date-picker",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "private": false,
   "main": "dist/moli-vue-date-picker.umd.js",
   "module": "dist/moli-vue-date-picker.es.js",
@@ -20,6 +20,7 @@
     "@vueuse/core": "^14.0.0",
     "date-fns": "^4.1.0",
     "date-fns-jalali": "^4.1.0-0",
+    "terser": "^5.44.1",
     "vue-i18n": "^11.2.2"
   },
   "devDependencies": {

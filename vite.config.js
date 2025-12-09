@@ -24,7 +24,9 @@ export default defineConfig({
       entry: fileURLToPath(new URL("./src/index.js", import.meta.url)),
       name: "MoliDatepicker",
       fileName: (format) => `moli-vue-date-picker.${format}.js`,
+      formats: ["es"],
     },
+    minify: "terser",
     rollupOptions: {
       external: ["vue"],
       output: {
