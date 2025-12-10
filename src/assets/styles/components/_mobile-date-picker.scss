@@ -12,7 +12,7 @@
   &__block {
     width: $calender-block-width;
     height: $calender-height;
-    @include flex(start, center, $space-md, column);
+    @include flex(start, center, $calender-block-gap, column);
     overflow-y: scroll;
     position: relative;
     scroll-snap-type: y mandatory;
@@ -23,21 +23,21 @@
 
     &__text {
       width: $calender-text-width;
-      line-height: 2rem;
-      font-weight: $font-weight-semibold;
-      color: $gray-400;
+      line-height: $calender-text-line-height;
+      font-weight: $calender-text-font-weight;
+      color: $calender-text-color;
       scroll-snap-align: center;
       text-align: center;
       &--today {
-        color: $primary-main;
-        border-top: 1px solid $primary-main;
-        border-bottom: 1px solid $primary-main;
+        color: $calender-text-today-color;
+        border-top: $calender-text-today-border-top;
+        border-bottom: $calender-text-today-border-bottom;
       }
     }
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: $md) {
   .calender {
     display: flex;
   }

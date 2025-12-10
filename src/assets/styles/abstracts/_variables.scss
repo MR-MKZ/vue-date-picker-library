@@ -3,69 +3,171 @@ $primary-200: #cee0fc;
 $primary-400: #84b3fe;
 $primary-600: #2471eb;
 $primary-main: #2f7bf5;
-
 $gray-100: #f6f8ff;
 $gray-200: #dadce5;
 $gray-400: #a2a5b0;
-
+$text-white: #ffffff;
 $text-light-info: #2d89e9;
 $text-dark-primary: #f4f4f4;
 $text-light-base: #0e101c;
 $text-light-base2: #5a5a5a;
-
 $bg-light-default: #fafafa;
 $bg-white: #ffffff;
+$bg-gradiant-start: #cee0fc26;
+$bg-gradiant-end: #cee0fc;
+$input-background: #eee;
+$input-border: #dcdcdc;
 
 // Fonts
 $font-weight-semibold: 600;
 
 // Spacing (rem)
-$space-xs: 0.25rem; // 4px
-$space-sm: 0.5rem; // 8px
-$space-md: 0.75rem; // 12px
-$space-lg: 1rem; // 16px
-$space-xl: 1.25rem; // 20px
-$space-xxl: 1.5rem; // 24px
+$space-xs: 0.25rem !default;
+$space-sm: 0.5rem !default;
+$space-md: 0.75rem !default;
+$space-lg: 1rem !default;
+$space-xl: 1.25rem !default;
+$space-xxl: 1.5rem !default;
 
 // Font sizes
-$font-xs: 0.75rem; // 12px
-$font-sm: 0.875rem; // 14px
+$font-xs: 0.75rem !default;
+$font-sm: 0.875rem !default;
 
-// Calendar sizes
-$month-width: 5.625rem; // 90px
-$month-height: 3.4375rem; // 55px
-$day-size: 2rem; // 32px converted to rem
-
-// Layout sizes (converted magic numbers)
-$container-width: 22.5rem; // 360px
-$container-max-width-mobile: 37.5rem; // 600px
-$container-max-height-mobile: 28.1875rem; // 451px
-
-$radius-sm: 0.25rem; // 4px
-$radius-md: 0.5rem; // 8px
-$radius-lg: 0.625rem; // 10px
-$radius-xl: 3.75rem; // 60px
+$radius-sm: 0.25rem !default;
+$radius-md: 0.5rem !default;
+$radius-lg: 0.625rem !default;
+$radius-xl: 3.75rem !default;
 
 // Shadows
-$shadow-container-mobile: -4.25rem 3.875rem 11rem #0000001a;
+$shadow-container-mobile: -4.25rem 3.875rem 11rem #0000001a !default;
 
-// Calendar sizes
-$calender-width: 22.5rem; // 360px
-$calender-height: 12.9375rem; // 207px
+// Breakpoints
+$md: 768px !default;
 
-$calender-gap: 3.5rem; // 56px
-$calender-block-width: 4.25rem; // 68px
-$calender-text-width: 4rem; // 64px
+// ==========================================================================================
+//                                  COMPONENTS VARIABLES
+// ==========================================================================================
 
-$locale-dropdown-top: 19%;
-$locale-dropdown-left: 68%;
+// Layout sizes
+$container-width: 22.5rem !default;
+$container-max-width-mobile: 37.5rem !default;
+$container-padding: $space-xxl $space-lg $space-md $space-lg !default;
+$container-border-radius: $radius-md !default;
+$container-max-height-mobile: 28.1875rem !default;
+$container-background-color: $gray-100 !default;
+$container-mobile-background-color: $bg-white !default;
+$container-mobile-padding: 0 !default;
+$container-mobile-border-radius: $radius-xl !default;
 
-// Weekday/day sizes
-$weekday-width: 1.875rem; // 30px
-$weekday-height: 1rem; // 16px
-$day-gradient-radius: 0.625rem;
+// Mobile calendar sizes
+$calender-width: 22.5rem !default;
+$calender-height: 12.9375rem !default;
+$calender-gap: 3.5rem !default;
+$calender-block-width: 4.25rem !default;
+$calender-block-gap: $space-md !default;
+$calender-text-width: 4rem !default;
+$calender-text-color: $gray-400 !default;
+$calender-text-line-height: 2rem !default;
+$calender-text-font-weight: $font-weight-semibold !default;
+$calender-text-today-color: $primary-main !default;
+$calender-text-today-border-top: 1px solid $primary-main !default;
+$calender-text-today-border-bottom: 1px solid $primary-main !default;
+
+// calender grid
+$calender-grid-gap: $space-md !default;
+$calender-grid-max-height: 16rem !default;
+$calender-grid-columns: 3 !default;
+$calender-grid-rows: 4 !default;
+
+// Desktop calender sizes
+$month-width: 5.625rem !default;
+$month-height: 3.4375rem !default;
+$year-width: 5.625rem !default;
+$year-height: 3.4375rem !default;
+$day-size: 2rem !default;
+$locale-width: 6.25rem !default;
+$locale-dropdown-top: 19% !default;
+$locale-dropdown-left: 68% !default;
+$locale-border-radius: $radius-sm !default;
+$locale-background-color: $gray-200 !default;
+$locale-item-padding: $space-sm !default;
+$locale-item-font-size: $font-xs !default;
+$locale-item-color: $text-light-base !default;
+
+// Header
+$header-margin-bottom: $space-md !default;
+$header-height: $space-xxl !default;
+$header-title-line-height: 1rem !default;
+$header-title-font-size: $font-xs !default;
+$header-title-color: $text-light-base !default;
+$header-close-icon-width: $space-xxl !default;
+$header-close-icon-height: $space-xxl !default;
+
+// Weekday/days/years/months/filter sizes and colors
+$content-gap: $space-xl !default;
+$filter-height: $space-xxl !default;
+$filter-font-size: $font-xs !default;
+$filter-color: $text-light-base !default;
+$filter-gap: $space-xs !default;
+$weekday-width: 1.875rem !default;
+$weekday-height: 1rem !default;
+$weekday-background-color: $bg-light-default !default;
+$weekday-border-radius: $radius-sm !default;
+$weekday-padding-inline: $space-xs !default;
+$weekday-day-font-size: $font-xs !default;
+$weekday-day-color: $text-light-base !default;
+$days-gap: $space-lg !default;
+$day-gradient: linear-gradient(to right, $bg-gradiant-start, $bg-gradiant-end) !default;
+$day-gradient-radius: 0.625rem !default;
+$day-border-radius: $radius-lg !default;
+$day-font-size: $font-sm !default;
+$day-color: $text-light-base !default;
+$day-hover-background-color: $primary-200 !default;
+$years-padding-right: $space-md !default;
+$year-border: 1px solid $gray-200 !default;
+$year-border-radius: $radius-lg !default;
+$year-height: $year-height !default;
+$year-line-height: 1.25rem !default;
+$year-font-size: $font-xs !default;
+$year-color: $text-light-base2 !default;
+$year-selected-background-color: $primary-main !default;
+$year-selected-color: $text-dark-primary !default;
+$month-border: 1px solid $gray-200 !default;
+$month-border-radius: $radius-lg !default;
+$month-line-height: 1.25rem !default;
+$month-color: $text-light-base2 !default;
+$month-font-size: $font-xs !default;
+$month-selected-background-color: $primary-main !default;
+$month-selected-color: $text-dark-primary !default;
 
 // Misc
-$scrollbar-width-sm: 0.25rem;
-$text-today-size: 0.625rem; // 10px
-$text-today-line: 0.75rem; // 12px
+$scrollbar-width-sm: 0.25rem !default;
+$scrollbar-track-border-radius: $radius-lg !default;
+$scrollbar-track-background-color: $primary-200 !default;
+$scrollbar-track-border-left: 1px solid $bg-white !default;
+$scrollbar-track-border-right: 1px solid $bg-white !default;
+$scrollbar-thumb-border-radius: $radius-sm !default;
+$scrollbar-thumb-background-color: $primary-400 !default;
+
+$text-today-size: 0.625rem !default;
+$text-today-line: 0.75rem !default;
+$text-today-color: $text-light-info !default;
+$text-not-current-color: $gray-400 !default;
+
+// range/selected
+$range-background-color: $primary-main !default;
+$range-hover-background-color: $primary-main !default;
+$range-hover-color: $text-dark-primary !default;
+
+// Base button
+$base-button-height: 3rem !default;
+$base-button-inline-padding: 1rem !default;
+$base-button-text: $text-white !default;
+
+// Base input
+$base-input-background-color: $bg-white !default;
+$base-input-width: 22.5rem !default;
+$base-input-border: 1px solid $input-border !default;
+$base-input-button-background: $input-background !default;
+$base-input-button-width: 1.75rem !default;
+$base-input-button-height: 1.75rem !default;

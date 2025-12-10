@@ -9,10 +9,10 @@ defineProps({ text: String });
 <style lang="scss" scoped>
 button {
   background-color: $primary-600;
-  height: 48px;
-  padding-inline: 16px;
-  border-radius: 12px;
+  height: $base-button-height;
+  padding-inline: $base-button-inline-padding;
+  border-radius: $radius-lg;
   cursor: pointer;
-  color: white;
+  color: $base-button-text;
 }
 </style>

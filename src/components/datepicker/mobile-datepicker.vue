@@ -169,7 +169,7 @@ onMounted(async () => {
             selectedDate.year === item.value && item.zone === 'original',
         }"
       >
-        {{ item.value }}
+        {{ englishToPersianDigit(item.value) }}
       </span>
     </div>
   </div>

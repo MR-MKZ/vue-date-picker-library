@@ -8,19 +8,19 @@
   flex-direction: $direction;
 }
 
-@mixin calendar-grid($columns: 3, $rows: 4) {
+@mixin calendar-grid($columns: 3, $rows: 4, $height, $width) {
   display: grid;
   justify-content: space-between;
-  grid-template-columns: repeat($columns, $month-width);
-  grid-template-rows: repeat($rows, $month-height);
-  gap: $space-md;
+  grid-template-columns: repeat($columns, $width);
+  grid-template-rows: repeat($rows, $height);
+  gap: $calender-grid-gap;
   overflow-y: auto;
-  max-height: 16rem;
+  max-height: $calender-grid-max-height;
 }
 
-@mixin filter-item($justify: center, $align: center, $gap: $space-xs, $color: $text-light-base) {
+@mixin filter-item($justify: center, $align: center, $gap: $filter-gap, $color: $filter-color) {
   @include flex($justify, $align, $gap);
-  font-size: $font-xs;
+  font-size: $filter-font-size;
   color: $color;
   cursor: pointer;
 }
