@@ -4,19 +4,19 @@
 .header {
   @include flex();
   position: relative;
-  margin-bottom: $header-margin-bottom;
-  height: $header-height;
+  margin-bottom: var(--header-margin-bottom);
+  height: var(--header-height);
 
   &__title {
-    font-size: $header-title-font-size;
-    line-height: $header-title-line-height;
-    color: $header-title-color;
+    font-size: var(--header-title-font-size);
+    line-height: var(--header-title-line-height);
+    color: var(--header-title-color);
   }
 
   &__close {
     cursor: pointer;
-    width: $header-close-icon-width;
-    height: $header-close-icon-height;
+    width: var(--header-close-icon-width);
+    height: var(--header-close-icon-height);
     position: absolute;
     right: 0;
   }
@@ -25,26 +25,26 @@
 .content {
   display: flex;
   flex-direction: column;
-  gap: $content-gap;
+  gap: var(--content-gap);
 
   &__filter {
     @include flex(space-between, center);
-    height: $filter-height;
+    height: var(--filter-height);
 
     .locale-dropdown {
       position: absolute;
-      top: $locale-dropdown-top;
-      left: $locale-dropdown-left;
-      width: $locale-width;
-      background-color: $locale-background-color;
-      border-radius: $locale-border-radius;
+      top: var(--locale-dropdown-top);
+      left: var(--locale-dropdown-left);
+      width: var(--locale-width);
+      background-color: var(--locale-background-color);
+      border-radius: var(--locale-border-radius);
       z-index: 50;
 
       &__item {
-        padding: $locale-item-padding;
+        padding: var(--locale-item-padding);
         cursor: pointer;
-        font-size: $locale-item-font-size;
-        color: $locale-item-color;
+        font-size: var(--locale-item-font-size);
+        color: var(--locale-item-color);
       }
     }
 
@@ -58,87 +58,100 @@
   }
 
   &__months {
-    @include calendar-grid($calender-grid-columns, $calender-grid-rows, $month-height, $month-width);
+    @include calendar-grid(
+      var(--calender-grid-columns),
+      var(--calender-grid-rows),
+      var(--month-height),
+      var(--month-width)
+    );
 
     &__month {
-      border: $month-border;
-      border-radius: $month-border-radius;
-      height: $month-height;
-      line-height: $month-line-height;
-      font-size: $month-font-size;
-      color: $month-color;
+      border: var(--month-border);
+      border-radius: var(--month-border-radius);
+      height: var(--month-height);
+      line-height: var(--month-line-height);
+      font-size: var(--month-font-size);
+      color: var(--month-color);
       @include flex();
       cursor: pointer;
       transition: all 0.2s ease;
 
       &--selected {
-        background-color: $month-selected-background-color;
-        color: $month-selected-color;
+        background-color: var(--month-selected-background-color);
+        color: var(--month-selected-color);
       }
     }
   }
 
   &__years {
-    @include calendar-grid($calender-grid-columns, $calender-grid-rows, $year-height, $year-width);
-    padding-right: $years-padding-right;
+    @include calendar-grid(
+      var(--calender-grid-columns),
+      var(--calender-grid-rows),
+      var(--year-height),
+      var(--year-width)
+    );
+    padding-right: var(--years-padding-right);
     direction: ltr;
 
     &__year {
-      border: $year-border;
-      border-radius: $year-border-radius;
-      height: $year-height;
+      border: var(--year-border);
+      border-radius: var(--year-border-radius);
+      height: var(--year-height);
       @include flex();
-      line-height: $year-line-height;
-      font-size: $year-font-size;
-      color: $year-color;
+      line-height: var(--year-line-height);
+      font-size: var(--year-font-size);
+      color: var(--year-color);
       cursor: pointer;
       transition: all 0.2s ease;
 
       &--selected {
-        background-color: $year-selected-background-color;
-        color: $year-selected-color;
+        background-color: var(--year-selected-background-color);
+        color: var(--year-selected-color);
       }
     }
 
     &::-webkit-scrollbar {
-      width: $scrollbar-width-sm;
+      width: var(--scrollbar-width-sm);
     }
 
     &::-webkit-scrollbar-track {
-      border-radius: $scrollbar-track-border-radius;
-      background-color: $scrollbar-track-background-color;
-      border-left: $scrollbar-track-border-left;
-      border-right: $scrollbar-track-border-right;
+      border-radius: var(--scrollbar-track-border-radius);
+      background-color: var(--scrollbar-track-background-color);
+      border-left: var(--scrollbar-track-border-left);
+      border-right: var(--scrollbar-track-border-right);
     }
 
     &::-webkit-scrollbar-thumb {
-      border-radius: $scrollbar-thumb-border-radius;
-      background-color: $scrollbar-thumb-background-color;
+      border-radius: var(--scrollbar-thumb-border-radius);
+      background-color: var(--scrollbar-thumb-background-color);
     }
   }
 
   &__weekdays {
-    height: $weekday-height;
+    height: var(--weekday-height);
     @include flex(space-between, center);
-    background-color: $weekday-background-color;
-    border-radius: $weekday-border-radius;
-    padding-inline: $weekday-padding-inline;
+    background-color: var(--weekday-background-color);
+    border-radius: var(--weekday-border-radius);
+    padding-inline: var(--weekday-padding-inline);
 
     &__day {
-      width: $weekday-width;
-      line-height: $weekday-height;
+      width: var(--weekday-width);
+      line-height: var(--weekday-height);
       text-align: center;
-      font-size: $weekday-day-font-size;
-      color: $weekday-day-color;
+      font-size: var(--weekday-day-font-size);
+      color: var(--weekday-day-color);
     }
   }
 
   &__days {
     display: grid;
     justify-content: space-between;
-    grid-template-columns: repeat(7, $day-size); // 7 is not a magic number it's 7 days in a week :)
-    grid-auto-rows: $day-size;
-    gap: $days-gap;
+    grid-template-columns: repeat(
+      7,
+      var(--day-size)
+    ); // 7 is not a magic number it's 7 days in a week :)
+    grid-auto-rows: var(--day-size);
+    gap: var(--days-gap);
     position: relative;
 
     &__week-gradient {
@@ -147,30 +160,30 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: $day-gradient;
-      border-radius: $day-gradient-radius;
+      background: var(--day-gradient);
+      border-radius: var(--day-gradient-radius);
       z-index: 0;
       pointer-events: none;
     }
 
     &__day {
-      border-radius: $day-border-radius;
+      border-radius: var(--day-border-radius);
       position: relative;
       z-index: 1;
-      font-size: $day-font-size;
-      color: $day-color;
+      font-size: var(--day-font-size);
+      color: var(--day-color);
       cursor: pointer;
       @include flex();
       transition: all 0.2s ease;
 
       &:hover {
-        background-color: $primary-200;
+        background-color: var(--primary-200);
       }
 
       &--today {
-        font-size: $text-today-size;
-        color: $text-today-color;
-        line-height: $text-today-line;
+        font-size: var(--text-today-size);
+        color: var(--text-today-color);
+        line-height: var(--text-today-line);
         position: absolute;
         bottom: 0;
         left: 50%;
@@ -180,26 +193,26 @@
       &--selected,
       &--range-start,
       &--range-end {
-        background-color: $range-background-color;
-        color: $range-hover-color;
+        background-color: var(--range-background-color);
+        color: var(--range-hover-color);
 
         &:hover {
-          background-color: $range-hover-background-color;
+          background-color: var(--range-hover-background-color);
         }
 
         & > * {
-          color: $range-hover-color;
+          color: var(--range-hover-color);
         }
       }
 
       &--not-current {
-        color: $text-not-current-color;
+        color: var(--text-not-current-color);
       }
     }
   }
 }
 
-@media (max-width: $md) {
+@media (max-width: var(--md)) {
   .header,
   .content {
     display: none;

@@ -8,11 +8,11 @@ defineProps({ text: String });
 
 <style lang="scss" scoped>
 button {
-  background-color: $primary-600;
-  height: $base-button-height;
-  padding-inline: $base-button-inline-padding;
-  border-radius: $radius-lg;
+  background-color: var(--primary-600);
+  height: var(--base-button-height);
+  padding-inline: var(--base-button-inline-padding);
+  border-radius: var(--radius-lg);
   cursor: pointer;
-  color: $base-button-text;
+  color: var(--base-button-text);
 }
 </style>

@@ -2,17 +2,17 @@
 @use "../abstracts/mixins" as *;
 
 .calender {
-  width: $calender-width;
-  height: $calender-height;
+  width: var(--calender-width);
+  height: var(--calender-height);
   display: none;
-  gap: $calender-gap;
+  gap: var(--calender-gap);
   justify-content: center;
   align-items: center;
 
   &__block {
-    width: $calender-block-width;
-    height: $calender-height;
-    @include flex(start, center, $calender-block-gap, column);
+    width: var(--calender-block-width);
+    height: var(--calender-height);
+    @include flex(start, center, var(--calender-block-gap, column));
     overflow-y: scroll;
     position: relative;
     scroll-snap-type: y mandatory;
@@ -22,22 +22,22 @@
     }
 
     &__text {
-      width: $calender-text-width;
-      line-height: $calender-text-line-height;
-      font-weight: $calender-text-font-weight;
-      color: $calender-text-color;
+      width: var(--calender-text-width);
+      line-height: var(--calender-text-line-height);
+      font-weight: var(--calender-text-font-weight);
+      color: var(--calender-text-color);
       scroll-snap-align: center;
       text-align: center;
       &--today {
-        color: $calender-text-today-color;
-        border-top: $calender-text-today-border-top;
-        border-bottom: $calender-text-today-border-bottom;
+        color: var(--calender-text-today-color);
+        border-top: var(--calender-text-today-border-top);
+        border-bottom: var(--calender-text-today-border-bottom);
       }
     }
   }
 }
 
-@media (max-width: $md) {
+@media (max-width: var(--md)) {
   .calender {
     display: flex;
   }

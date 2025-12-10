@@ -2,25 +2,25 @@
 @use "../abstracts/mixins" as *;
 
 .container {
-  background-color: $container-background-color;
-  width: $container-width;
-  padding: $container-padding;
-  border-radius: $container-border-radius;
+  background-color: var(--container-background-color);
+  width: var(--container-width);
+  padding: var(--container-padding);
+  border-radius: var(--container-border-radius);
   position: fixed;
   top: 50%;
   left: 50%;
   z-index: 1000;
   transform: translate(-50%, -50%);
 
-  @media (max-width: $md) {
-    background-color: $container-mobile-background-color;
+  @media (max-width: var(--md)) {
+    background-color: var(--container-mobile-background-color);
     width: 100%;
     height: 100%;
-    max-width: $container-max-width-mobile;
-    max-height: $container-max-height-mobile;
-    padding: $container-mobile-padding;
+    max-width: var(--container-max-width-mobile);
+    max-height: var(--container-max-height-mobile);
+    padding: var(--container-mobile-padding);
     @include flex(center, center);
-    border-radius: $container-mobile-border-radius;
-    box-shadow: $shadow-container-mobile;
+    border-radius: var(--container-mobile-border-radius);
+    box-shadow: var(--shadow-container-mobile);
   }
 }

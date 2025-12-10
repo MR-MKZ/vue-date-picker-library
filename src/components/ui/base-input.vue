@@ -14,25 +14,25 @@ const props = defineProps(["placeholder"]);
   position: relative;
   display: flex;
   align-items: center;
-  background: $base-input-background-color;
-  border-radius: $radius-lg;
-  gap: $space-sm;
-  width: $base-input-width;
-  padding: $space-sm $space-md;
-  border: $base-input-border;
+  background: var(--base-input-background-color);
+  border-radius: var(--radius-lg);
+  gap: var(--space-sm);
+  width: var(--base-input-width);
+  padding: var(--space-sm) var(--space-md);
+  border: var(--base-input-border);
 
   &__field {
     border: none;
     outline: none;
     flex: 1;
-    font-size: $font-sm;
+    font-size: var(--font-sm);
   }
 
   &__button {
-    width: $base-input-button-width;
-    height: $base-input-button-height;
-    background: $base-input-button-background;
-    border-radius: $radius-md;
+    width: var(--base-input-button-width);
+    height: var(--base-input-button-height);
+    background: var(--base-input-button-background);
+    border-radius: var(--radius-md);
     transition: 0.2s;
     cursor: pointer;
     @include flex(center, center);
