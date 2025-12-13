@@ -23,6 +23,13 @@ const props = defineProps({
     },
   },
   format: "YYYY/MM/DD",
+  pickerType: {
+    type: String,
+    default: "both",
+    validator(value) {
+      return ["date", "clock", "both"].includes(value);
+    },
+  },
 });
 
 const emit = defineEmits(["close", "open", "changed"]);
@@ -85,6 +92,7 @@ const changeDateHandler = (item) => {
         :selectionMode="props.mode"
         :calender-engine="calenderEngine"
         :today="today"
+        :picker-type="pickerType"
       />
       <mobile-datepicker
         :availableMonths="availableMonths"

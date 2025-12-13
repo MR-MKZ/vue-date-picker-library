@@ -56,10 +56,12 @@ const processRange = (range, format) => {
   };
 };
 
+const processTime = (date) => date;
 const processMultiple = (dates, format) => dates.map((date) => processSingleDate(date, format));
 
 const dateFormatter = (date, format) => {
   if (!date) return;
+  if (date.includes(":")) return processTime(date, format);
   if (!Array.isArray(date) && !date.includes("|")) return processSingleDate(date, format);
   if (date.includes("|")) return processRange(date, format);
   if (Array.isArray(date)) return processMultiple(date, format);

@@ -57,6 +57,29 @@
     }
   }
 
+  &__clockPicker {
+    @include flex(center, center, var(--clockPicker-gap));
+    height: var(--clockPicker-height);
+
+    &__separator {
+      font-size: var(--clockPicker-separator-font-size);
+    }
+
+    &__hour,
+    &__minute {
+      @include flex(center, center, var(--clockPicker-texts-gap), column);
+      font-size: var(--clockPicker-font-size);
+
+      &__increment {
+        rotate: var(--clockPicker-increment-rotate);
+      }
+
+      &__decrement {
+        rotate: var(--clockPicker-decrement-rotate);
+      }
+    }
+  }
+
   &__months {
     @include calendar-grid(
       var(--calender-grid-columns),

@@ -9,6 +9,7 @@ import GridFilter from "@/components/common/grid-filter.vue";
 import GridDays from "@/components/common/grid-days.vue";
 import GridMonths from "@/components/common/grid-months.vue";
 import GridYears from "@/components/common/grid-years.vue";
+import GridClock from "@/components/common/grid-clock.vue";
 
 const props = defineProps({
   selectionMode: {
@@ -20,10 +21,11 @@ const props = defineProps({
   availableYears: { type: Array, required: true },
   today: { type: Object, required: true },
   calenderEngine: { type: Object, required: true },
+  pickerType: { type: String, required: true },
 });
-const currentView = ref("days");
+const currentView = ref(props.pickerType === "clock" ? "clock" : "days");
 const selectedDates = reactive({
-  single: { year: null, month: null, day: null },
+  single: { year: null, month: null, day: null, time: { hour: "00", minute: "00" } },
   range: { start: {}, end: {} },
   multiple: [],
 });
@@ -40,7 +42,9 @@ watch([selectedDates.single], () => {
   syncEngine(selectedDates.single.year, selectedDates.single.month);
 });
 
-watch([selectedDates.range, selectedDates.single, selectedDates.multiple], () => emit("changed"));
+watch([selectedDates.range, () => selectedDates.single, selectedDates.multiple], () =>
+  emit("changed"),
+);
 
 const selectionHandlers = {
   single: (cell) => updateSingle(cell, selectedDates),
@@ -48,7 +52,10 @@ const selectionHandlers = {
   range: (cell) => updateRange(cell, selectedDates),
 };
 
-const handleDayClick = (cell) => selectionHandlers[props.selectionMode]?.(cell);
+const handleDayClick = (cell) => {
+  selectionHandlers[props.selectionMode]?.(cell);
+  if (props.pickerType !== "date" && props.selectionMode === "single") currentView.value = "clock";
+};
 
 const handleMonthClick = (selectedDate) => {
   selectedDates.single.month = selectedDate.month + 1;
@@ -67,9 +74,16 @@ const handleYearClick = ({ year }) => {
   currentView.value = "months";
 };
 
+const handleTimeChange = (time) => (selectedDates.single.time = time);
+
 const emit = defineEmits(["date", "changed", "closed", "update-year", "update-month"]);
 
 function buildOutputDateValue() {
+  if (props.pickerType === "clock") {
+    return {
+      value: `${selectedDates.single?.time?.hour}:${selectedDates.single?.time?.minute}`,
+    };
+  }
   switch (props.selectionMode) {
     case "range":
       const start = selectedDates.range.start;
@@ -82,7 +96,12 @@ function buildOutputDateValue() {
       return { value: selectedDates.multiple.length ? selectedDates.multiple : null };
     case "single":
       const single = selectedDates.single;
-      return single.day ? { value: `${single.year}/${single.month}/${single.day}` } : null;
+      const timeTemplate = ` - ${single?.time?.hour}:${single?.time?.minute}`;
+      return single.day
+        ? {
+            value: `${single.year}/${single.month}/${single.day}${props.pickerType !== "date" ? timeTemplate : ""}`,
+          }
+        : null;
   }
   return null;
 }
@@ -110,10 +129,11 @@ const submitSelection = () => {
           : calenderEngine.calendarGrid.value[0].year
       "
       @update:current-view="currentView = $event.current"
+      v-if="pickerType !== 'clock'"
     />
     <div
       class="content__weekdays"
-      v-if="currentView === 'days'"
+      v-if="currentView === 'days' && pickerType !== 'clock'"
       :dir="providerData.direction.value"
     >
       <span
@@ -124,7 +144,13 @@ const submitSelection = () => {
         {{ weekday }}
       </span>
     </div>
+    <grid-clock
+      v-if="pickerType !== 'date'"
+      :current-view="currentView"
+      @changed="handleTimeChange"
+    />
     <grid-days
+      v-if="pickerType !== 'clock'"
       :selection-mode="selectionMode"
       :current-view="currentView"
       :selected-dates="selectedDates"
@@ -136,6 +162,7 @@ const submitSelection = () => {
       @clicked="handleDayClick"
     />
     <grid-months
+      v-if="pickerType !== 'clock'"
       :current-view="currentView"
       :selected-dates="selectedDates.single.month ? selectedDates.single : today"
       :available-months="availableMonths"
@@ -143,6 +170,7 @@ const submitSelection = () => {
       @clicked="handleMonthClick"
     />
     <grid-years
+      v-if="pickerType !== 'clock'"
       :current-view="currentView"
       :selected-dates="selectedDates.single.month ? selectedDates.single : today"
       :available-years="availableYears"
