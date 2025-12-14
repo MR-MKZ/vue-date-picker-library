@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
+import { desktopSlots } from "@/constants/desktopSlots";
 import dateFormatter from "@/helpers/dateFormatter";
 import useDateDefaults from "@/composables/useDateDefaults";
 import useCalenderCore from "@/composables/useCalenderCore";
@@ -30,6 +31,12 @@ const props = defineProps({
       return ["date", "clock", "both"].includes(value);
     },
   },
+  submitText: { type: Object, default: { jalaali: "تایید", gregorian: "submit" } },
+  selectDateText: {
+    type: Object,
+    default: { jalaali: "تاریخ را انتخاب نمایید", gregorian: "please select a date" },
+  },
+  todayText: { type: Object, default: { jalaali: "امروز", gregorian: "today" } },
 });
 
 const emit = defineEmits(["close", "open", "changed"]);
@@ -93,7 +100,14 @@ const changeDateHandler = (item) => {
         :calender-engine="calenderEngine"
         :today="today"
         :picker-type="pickerType"
-      />
+        :select-date-text="selectDateText"
+        :submit-text="submitText"
+        :today-text="todayText"
+      >
+        <template v-for="slotName in desktopSlots" v-slot:[slotName]="slotProps">
+          <slot :name="slotName" v-bind="slotProps" />
+        </template>
+      </desktop-datepicker>
       <mobile-datepicker
         :availableMonths="availableMonths"
         :availableYears="availableYears"
@@ -106,10 +120,17 @@ const changeDateHandler = (item) => {
         :max-date="max"
       />
     </div>
-    <base-input
+    <slot
+      name="input-field"
+      :value="inputValue"
+      :mode="props.mode"
+      :openCalendar="() => (isCalendarVisible = true)"
       v-if="!headless"
-      @click="isCalendarVisible = true"
-      :placeholder="props.mode !== 'multiple' ? inputValue : ''"
-    />
+    >
+      <base-input
+        :placeholder="props.mode !== 'multiple' ? inputValue : ''"
+        @click="isCalendarVisible = true"
+      />
+    </slot>
   </div>
 </template>

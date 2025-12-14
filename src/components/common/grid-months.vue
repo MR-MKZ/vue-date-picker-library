@@ -10,14 +10,21 @@ defineEmits(["clicked"]);
 
 <template>
   <div class="content__months" v-if="currentView === 'months'">
-    <div
-      class="content__months__month"
+    <slot
+      name="month-cell"
       v-for="(month, index) in availableMonths"
       :key="month"
-      :class="{ 'content__months__month--selected': selectedDates.month - 1 === index }"
-      @click="$emit('clicked', { year: selectedDates.year, month: index })"
+      :month="month"
+      :selected="selectedDates.month - 1 === index"
+      :selectMonth="() => $emit('clicked', { year: selectedDates.year, month: index })"
     >
-      {{ month }}
-    </div>
+      <div
+        class="content__months__month"
+        :class="{ 'content__months__month--selected': selectedDates.month - 1 === index }"
+        @click="$emit('clicked', { year: selectedDates.year, month: index })"
+      >
+        {{ month }}
+      </div>
+    </slot>
   </div>
 </template>

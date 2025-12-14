@@ -22,6 +22,9 @@ const props = defineProps({
   today: { type: Object, required: true },
   calenderEngine: { type: Object, required: true },
   pickerType: { type: String, required: true },
+  submitText: { type: Object, required: true },
+  selectDateText: { type: Object, required: true },
+  todayText: { type: Object, required: true },
 });
 const currentView = ref(props.pickerType === "clock" ? "clock" : "days");
 const selectedDates = reactive({
@@ -96,7 +99,7 @@ function buildOutputDateValue() {
       return { value: selectedDates.multiple.length ? selectedDates.multiple : null };
     case "single":
       const single = selectedDates.single;
-      const timeTemplate = ` - ${single?.time?.hour}:${single?.time?.minute}`;
+      const timeTemplate = ` - ${single.time?.hour}:${single.time?.minute}`;
       return single.day
         ? {
             value: `${single.year}/${single.month}/${single.day}${props.pickerType !== "date" ? timeTemplate : ""}`,
@@ -117,38 +120,51 @@ const submitSelection = () => {
 <template>
   <header class="header">
     <icon-close class="header__close" @click="$emit('closed')" />
-    <p class="header__title">{{ providerData.mainText }}</p>
+    <p class="header__title">{{ selectDateText[locale] }}</p>
   </header>
   <div class="content">
-    <grid-filter
-      :current-month-text="providerData.currentMonthText.value"
-      :current-view="currentView"
-      :year="
-        selectedDates.single.year
-          ? selectedDates.single.year
-          : calenderEngine.calendarGrid.value[0].year
-      "
-      @update:current-view="currentView = $event.current"
+    <slot
+      name="grid-filter"
+      :currentMonthText="providerData.currentMonthText"
+      :currentView="currentView"
+      :year="selectedDates.single.year || calenderEngine.calendarGrid.value[0].year"
+      :updateCurrentView="(view) => (currentView = view.current)"
       v-if="pickerType !== 'clock'"
-    />
-    <div
-      class="content__weekdays"
+    >
+      <grid-filter
+        :current-month-text="providerData.currentMonthText.value"
+        :current-view="currentView"
+        :year="selectedDates.single.year || calenderEngine.calendarGrid.value[0].year"
+        @update:current-view="currentView = $event.current"
+      >
+        <template #locale-dropdown="slotProps">
+          <slot name="locale-dropdown" v-bind="slotProps" />
+        </template>
+      </grid-filter>
+    </slot>
+    <slot
+      name="weekdays"
+      :weekdays="providerData?.weekdays.value"
       v-if="currentView === 'days' && pickerType !== 'clock'"
       :dir="providerData.direction.value"
     >
-      <span
-        class="content__weekdays__day"
-        v-for="weekday in providerData?.weekdays.value"
-        :key="weekday"
-      >
-        {{ weekday }}
-      </span>
-    </div>
-    <grid-clock
-      v-if="pickerType !== 'date'"
-      :current-view="currentView"
-      @changed="handleTimeChange"
-    />
+      <div class="content__weekdays">
+        <span
+          class="content__weekdays__day"
+          v-for="weekday in providerData?.weekdays.value"
+          :key="weekday"
+        >
+          {{ weekday }}
+        </span>
+      </div>
+    </slot>
+    <slot
+      name="grid-clock"
+      :onChange="handleTimeChange"
+      v-if="pickerType !== 'date' && currentView === 'clock'"
+    >
+      <grid-clock @changed="handleTimeChange" />
+    </slot>
     <grid-days
       v-if="pickerType !== 'clock'"
       :selection-mode="selectionMode"
@@ -156,11 +172,15 @@ const submitSelection = () => {
       :selected-dates="selectedDates"
       :today="today"
       :locale="locale"
-      :today-text="providerData.todayText.value"
+      :today-text="todayText[locale]"
       :calender-engine="calenderEngine"
       :dir="providerData.direction.value"
       @clicked="handleDayClick"
-    />
+    >
+      <template #day-cell="slotProps">
+        <slot name="day-cell" v-bind="slotProps" />
+      </template>
+    </grid-days>
     <grid-months
       v-if="pickerType !== 'clock'"
       :current-view="currentView"
@@ -168,7 +188,11 @@ const submitSelection = () => {
       :available-months="availableMonths"
       :dir="providerData.direction.value"
       @clicked="handleMonthClick"
-    />
+    >
+      <template #month-cell="slotProps">
+        <slot name="month-cell" v-bind="slotProps" />
+      </template>
+    </grid-months>
     <grid-years
       v-if="pickerType !== 'clock'"
       :current-view="currentView"
@@ -177,7 +201,13 @@ const submitSelection = () => {
       :dir="providerData.direction.value"
       @clicked="handleYearClick"
       :locale="locale"
-    />
-    <base-button :text="locale === 'jalaali' ? 'تایید' : 'submit'" @click="submitSelection" />
+    >
+      <template #year-cell="slotProps">
+        <slot name="year-cell" v-bind="slotProps" />
+      </template>
+    </grid-years>
+    <slot name="submit-button" :submit="submitSelection" :locale="locale">
+      <base-button :text="submitText[locale]" @click="submitSelection" />
+    </slot>
   </div>
 </template>

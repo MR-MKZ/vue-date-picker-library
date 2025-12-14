@@ -13,14 +13,22 @@ defineEmits(["clicked"]);
 
 <template>
   <div class="content__years" v-if="currentView === 'years'">
-    <div
-      class="content__years__year"
+    <slot
+      name="year-cell"
       v-for="year in availableYears"
       :key="year"
-      :class="{ 'content__years__year--selected': selectedDates.year === year }"
-      @click="$emit('clicked', { year })"
+      :year="year"
+      :selected="selectedDates.year === year"
+      :locale="locale"
+      :selectYear="() => $emit('clicked', { year })"
     >
-      {{ locale === "gregorian" ? year : englishToPersianDigit(year) }}
-    </div>
+      <div
+        class="content__years__year"
+        :class="{ 'content__years__year--selected': selectedDates.year === year }"
+        @click="$emit('clicked', { year })"
+      >
+        {{ locale === "gregorian" ? year : englishToPersianDigit(year) }}
+      </div>
+    </slot>
   </div>
 </template>

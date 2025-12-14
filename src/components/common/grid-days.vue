@@ -63,17 +63,25 @@ const getCellClasses = (cell, index) => {
         gridRow: `${Math.floor(week.from / 7) + 1} / ${Math.floor(week.to / 7) + 2}`,
       }"
     ></div>
-    <div
-      class="content__days__day"
+    <slot
+      name="day-cell"
       v-for="(cell, i) in calenderEngine.calendarGrid.value"
       :key="i"
-      :class="getCellClasses(cell, i)"
-      @click="$emit('clicked', cell)"
+      :cell="cell"
+      :selectDay="() => $emit('clicked', cell)"
+      :isToday="sameDate(cell, today) && cell.current"
+      :todayText="todayText"
     >
-      {{ locale === "gregorian" ? cell.day : englishToPersianDigit(cell.day) }}
-      <span class="content__days__day--today" v-if="sameDate(cell, today) && cell.current">
-        {{ todayText }}
-      </span>
-    </div>
+      <div
+        class="content__days__day"
+        :class="getCellClasses(cell, i)"
+        @click="$emit('clicked', cell)"
+      >
+        {{ locale === "gregorian" ? cell.day : englishToPersianDigit(cell.day) }}
+        <span class="content__days__day--today" v-if="sameDate(cell, today) && cell.current">
+          {{ todayText }}
+        </span>
+      </div>
+    </slot>
   </div>
 </template>

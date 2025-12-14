@@ -39,16 +39,23 @@ const emit = defineEmits(["update:currentView"]);
     >
       <span>{{ localeLabel }}</span>
       <icon-chevron :style="chevronStyle" />
-      <div class="locale-dropdown" v-if="showOptions">
-        <div
-          class="locale-dropdown__item"
-          v-for="label in locales"
-          :key="label"
-          @click.stop="changeLocale(label)"
-        >
-          {{ getLocaleMessage(label).label }}
+      <slot
+        name="locale-dropdown"
+        :locales="locales"
+        :changeLocale="changeLocale"
+        v-if="showOptions"
+      >
+        <div class="content__filter__locale-dropdown">
+          <div
+            class="content__filter__locale-dropdown__item"
+            v-for="label in locales"
+            :key="label"
+            @click.stop="changeLocale(label)"
+          >
+            {{ getLocaleMessage(label).label }}
+          </div>
         </div>
-      </div>
+      </slot>
     </div>
     <div
       class="content__filter__item"
