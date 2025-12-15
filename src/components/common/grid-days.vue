@@ -2,7 +2,7 @@
 import { computed } from "vue";
 import { buildRangeWeeks } from "@/helpers/buildRangeWeeks";
 import { englishToPersianDigit } from "@/utils/replaceNumbers";
-import isSameDate from "@/utils/isSameDate";
+import { isSameDate } from "@/utils/isSameDate";
 
 const props = defineProps({
   selectedDates: { type: Object, required: true },

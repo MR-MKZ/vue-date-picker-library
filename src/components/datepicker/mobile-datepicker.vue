@@ -10,14 +10,14 @@ const props = defineProps({
   availableYears: { type: Array, required: true },
   calendarEngine: { type: Object, required: true },
   today: { type: Object, required: true },
-  minDate: { type: String, default: "1404/01/08", required: true },
-  maxDate: { type: String, default: "2026/12/08", required: true },
+  minDate: { type: String, required: true },
+  maxDate: { type: String, required: true },
 });
 
 const emit = defineEmits(["changed", "update-month", "update-year"]);
 
-const minDate = splitDateParts(props.minDate);
-const maxDate = splitDateParts(props.maxDate);
+const minDateParts = splitDateParts(props.minDate);
+const maxDateParts = splitDateParts(props.maxDate);
 
 const selectedDate = reactive({ ...props.today });
 const dayColumnRef = ref(null);
@@ -30,41 +30,48 @@ const scrollableMonths = computed(() => wrapList(filteredMonths.value));
 const scrollableYears = computed(() => wrapList(props.availableYears));
 
 const filteredMonths = computed(() => {
-  if (selectedDate.year === minDate[0] && selectedDate.year === maxDate[0])
-    return props.availableMonths.filter((_, idx) => idx + 1 >= minDate[1] && idx + 1 <= maxDate[1]);
-  if (selectedDate.year === minDate[0])
-    return props.availableMonths.filter((_, idx) => idx + 1 >= minDate[1]);
-  if (selectedDate.year === maxDate[0])
-    return props.availableMonths.filter((_, idx) => idx + 1 <= maxDate[1]);
+  if (selectedDate.year === minDateParts[0] && selectedDate.year === maxDateParts[0])
+    return props.availableMonths.filter(
+      (_, idx) => idx + 1 >= minDateParts[1] && idx + 1 <= maxDateParts[1],
+    );
+  if (selectedDate.year === minDateParts[0])
+    return props.availableMonths.filter((_, idx) => idx + 1 >= minDateParts[1]);
+  if (selectedDate.year === maxDateParts[0])
+    return props.availableMonths.filter((_, idx) => idx + 1 <= maxDateParts[1]);
   return props.availableMonths;
 });
 
 const filteredDays = computed(() => {
   const grid = props.calendarEngine.calendarGrid.value.filter((i) => i.current);
   const days = grid.map((i) => i.day);
-  if (selectedDate.year === minDate[0] && selectedDate.month === minDate[1])
-    return days.filter((day) => day >= minDate[2]);
-  if (selectedDate.year === maxDate[0] && selectedDate.month === maxDate[1])
-    return days.filter((day) => day <= maxDate[2]);
+  if (selectedDate.year === minDateParts[0] && selectedDate.month === minDateParts[1])
+    return days.filter((day) => day >= minDateParts[2]);
+  if (selectedDate.year === maxDateParts[0] && selectedDate.month === maxDateParts[1])
+    return days.filter((day) => day <= maxDateParts[2]);
   return days;
 });
 
 const getCenterVisibleItem = (container) => {
   if (!container) return null;
-  const center = container.scrollTop + container.clientHeight / 2;
-  const items = container.children;
-  let best = null;
-  let bestDiff = Infinity;
-  for (const item of items) {
-    const itemCenter = item.offsetTop + item.offsetHeight / 2;
-    const diff = Math.abs(itemCenter - center);
-    if (diff < bestDiff) {
-      bestDiff = diff;
-      best = item;
+  const center = getContainerCenter(container);
+  return getClosestChildToCenter(container.children, center);
+};
+
+const getClosestChildToCenter = (children, center) => {
+  let closestElement = null;
+  let smallestDistance = Infinity;
+  for (const child of children) {
+    const childCenter = child.offsetTop + child.offsetHeight / 2;
+    const distance = Math.abs(childCenter - center);
+    if (distance < smallestDistance) {
+      smallestDistance = distance;
+      closestElement = child;
     }
   }
-  return best;
+  return closestElement;
 };
+
+const getContainerCenter = (container) => container.scrollTop + container.clientHeight / 2;
 
 const clampSelectedDateWithinRange = () => {
   const num = clampDateValue(selectedDate);
@@ -78,8 +85,8 @@ const clampSelectedDateWithinRange = () => {
 
 const clampDateValue = ({ year, month, day }) => {
   const num = year * 10000 + month * 100 + day;
-  const minNum = minDate[0] * 10000 + minDate[1] * 100 + minDate[2];
-  const maxNum = maxDate[0] * 10000 + maxDate[1] * 100 + maxDate[2];
+  const minNum = minDateParts[0] * 10000 + minDateParts[1] * 100 + minDateParts[2];
+  const maxNum = maxDateParts[0] * 10000 + maxDateParts[1] * 100 + maxDateParts[2];
   if (num < minNum) return minNum;
   if (num > maxNum) return maxNum;
   return num;
@@ -113,10 +120,13 @@ useInfiniteScroll(dayColumnRef, () => filteredDays.value);
 useInfiniteScroll(monthColumnRef, () => filteredMonths.value);
 useInfiniteScroll(yearColumnRef, () => props.availableYears);
 
-watch(selectedDate, () => {
-  if (skipInitialEmit.value) return;
-  emit("changed", { status: true, ...selectedDate });
-});
+watch(
+  () => [selectedDate.year, selectedDate.month, selectedDate.day],
+  () => {
+    if (skipInitialEmit.value) return;
+    emit("changed", { status: true, ...selectedDate });
+  },
+);
 
 const scrollColumnToCurrentDate = (ref) => {
   const element = ref.value?.querySelector(".calendar__block__text--today");

@@ -13,9 +13,8 @@ import MobileDatepicker from "@/components/datepicker/mobile-datepicker.vue";
 const props = defineProps({
   min: { type: String, default: "1404/01/08" },
   max: { type: String, default: "2026/12/08" },
-  defaults: { type: Array, default: [] },
+  defaults: { type: Array, default: () => [] },
   headless: { type: Boolean, default: false },
-  locales: { type: Boolean, default: true },
   mode: {
     type: String,
     default: "single",
@@ -55,13 +54,22 @@ const { calendarEngine, availableMonths, availableYears } = useCalendarCore(
 const isCalendarVisible = ref(props.headless);
 
 const formatDate = (date) => {
-  const result = date ? date.value : defaultDates.value;
-  const formattedDate = dateFormatter(result, props.format);
-  if (typeof formattedDate === "object" && !Array.isArray(formattedDate))
-    inputValue.value = formattedDate.text;
-  else inputValue.value = formattedDate;
-  if (!props.headless) isCalendarVisible.value = false;
-  else emit("close");
+  const resolved = resolveDateValue(date);
+
+  const formatted = dateFormatter(resolved, props.format);
+
+  applyFormattedDate(normalizeFormattedDate(formatted));
+  handleCalendarClose();
+};
+
+const resolveDateValue = (date) => date?.value ?? defaultDates.value;
+const applyFormattedDate = (value) => (inputValue.value = value);
+
+const normalizeFormattedDate = (formatted) =>
+  typeof formatted === "object" && !Array.isArray(formatted) ? formatted.text : formatted;
+
+const handleCalendarClose = () => {
+  props.headless ? emit("close") : (isCalendarVisible.value = false);
 };
 
 watch(isCalendarVisible, (value) => {
@@ -77,8 +85,7 @@ const changeDateHandler = (item) => {
   if (item?.status) {
     const { year, month, day } = item;
     const formattedDate = dateFormatter(`${year}/${month}/${day}`, props.format);
-    inputValue.value = formattedDate;
-    if (typeof formattedDate === "object") inputValue.value = formattedDate.text;
+    applyFormattedDate(normalizeFormattedDate(formattedDate));
   }
   emit("changed");
 };

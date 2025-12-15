@@ -2,6 +2,7 @@
 import { ref, watch, reactive } from "vue";
 import { useI18n } from "vue-i18n";
 import { updateMultiple, updateRange, updateSingle } from "@/helpers/updateDates";
+import { buildOutputs } from "@/helpers/buildOutputs";
 import useGetProvidersData from "@/composables/useGetProvidersData";
 import IconClose from "@/components/icons/icon-close.vue";
 import BaseButton from "@/components/ui/base-button.vue";
@@ -82,29 +83,14 @@ const handleTimeChange = (time) => (selectedDates.single.time = time);
 const emit = defineEmits(["date", "changed", "closed", "update-year", "update-month"]);
 
 function buildOutputDateValue() {
-  if (props.pickerType === "clock") {
-    return {
-      value: `${selectedDates.single?.time?.hour}:${selectedDates.single?.time?.minute}`,
-    };
-  }
+  if (props.pickerType === "clock") return buildOutputs.buildClockOutput(selectedDates);
   switch (props.selectionMode) {
     case "range":
-      const start = selectedDates.range.start;
-      const end = selectedDates.range.end;
-      if (!start.day || !end.day) return null;
-      return {
-        value: `${start.year}/${start.month}/${start.day} | ${end.year}/${end.month}/${end.day}`,
-      };
+      return buildOutputs.buildRangeOutput(selectedDates);
     case "multiple":
-      return { value: selectedDates.multiple.length ? selectedDates.multiple : null };
+      return buildOutputs.buildMultipleOutput(selectedDates);
     case "single":
-      const single = selectedDates.single;
-      const timeTemplate = ` - ${single.time?.hour}:${single.time?.minute}`;
-      return single.day
-        ? {
-            value: `${single.year}/${single.month}/${single.day}${props.pickerType !== "date" ? timeTemplate : ""}`,
-          }
-        : null;
+      return buildOutputs.buildSingleOutput(selectedDates, props.pickerType);
   }
   return null;
 }
@@ -125,82 +111,45 @@ const submitSelection = () => {
     <p class="header__title">{{ selectDateText[locale] }}</p>
   </header>
   <div class="content">
-    <slot
-      name="grid-filter"
-      :currentMonthText="providerData.currentMonthText"
-      :currentView="currentView"
+    <slot name="grid-filter" :currentMonthText="providerData.currentMonthText" :currentView="currentView"
       :year="selectedDates.single.year || calendarEngine.calendarGrid.value[0].year"
-      :updateCurrentView="(view) => (currentView = view.current)"
-      v-if="pickerType !== 'clock'"
-    >
-      <grid-filter
-        :current-month-text="providerData.currentMonthText.value"
-        :current-view="currentView"
+      :updateCurrentView="(view) => (currentView = view.current)" v-if="pickerType !== 'clock'">
+      <grid-filter :current-month-text="providerData.currentMonthText.value" :current-view="currentView"
         :year="selectedDates.single.year || calendarEngine.calendarGrid.value[0].year"
-        @update:current-view="currentView = $event.current"
-      >
+        @update:current-view="currentView = $event.current">
         <template #locale-dropdown="slotProps">
           <slot name="locale-dropdown" v-bind="slotProps" />
         </template>
       </grid-filter>
     </slot>
-    <slot
-      name="weekdays"
-      :weekdays="providerData?.weekdays.value"
-      v-if="currentView === 'days' && pickerType !== 'clock'"
-      :dir="providerData.direction.value"
-    >
+    <slot name="weekdays" :weekdays="providerData?.weekdays.value"
+      v-if="currentView === 'days' && pickerType !== 'clock'" :dir="providerData.direction.value">
       <div class="content__weekdays">
-        <span
-          class="content__weekdays__day"
-          v-for="weekday in providerData?.weekdays.value"
-          :key="weekday"
-        >
+        <span class="content__weekdays__day" v-for="weekday in providerData?.weekdays.value" :key="weekday">
           {{ weekday }}
         </span>
       </div>
     </slot>
-    <slot
-      name="grid-clock"
-      :onChange="handleTimeChange"
-      v-if="pickerType !== 'date' && currentView === 'clock'"
-    >
+    <slot name="grid-clock" :onChange="handleTimeChange" v-if="pickerType !== 'date' && currentView === 'clock'">
       <grid-clock @changed="handleTimeChange" />
     </slot>
-    <grid-days
-      v-if="pickerType !== 'clock' && currentView === 'days'"
-      :selection-mode="selectionMode"
-      :selected-dates="selectedDates"
-      :today="today"
-      :locale="locale"
-      :today-text="todayText[locale]"
-      :calendar-engine="calendarEngine"
-      :dir="providerData.direction.value"
-      @clicked="handleDayClick"
-    >
+    <grid-days v-if="pickerType !== 'clock' && currentView === 'days'" :selection-mode="selectionMode"
+      :selected-dates="selectedDates" :today="today" :locale="locale" :today-text="todayText[locale]"
+      :calendar-engine="calendarEngine" :dir="providerData.direction.value" @clicked="handleDayClick">
       <template #day-cell="slotProps">
         <slot name="day-cell" v-bind="slotProps" />
       </template>
     </grid-days>
-    <grid-months
-      v-if="pickerType !== 'clock' && currentView === 'months'"
-      :selected-dates="selectedDates.single.month ? selectedDates.single : today"
-      :available-months="availableMonths"
-      :dir="providerData.direction.value"
-      @clicked="handleMonthClick"
-    >
+    <grid-months v-if="pickerType !== 'clock' && currentView === 'months'"
+      :selected-dates="selectedDates.single.month ? selectedDates.single : today" :available-months="availableMonths"
+      :dir="providerData.direction.value" @clicked="handleMonthClick">
       <template #month-cell="slotProps">
         <slot name="month-cell" v-bind="slotProps" />
       </template>
     </grid-months>
-    <grid-years
-      v-if="pickerType !== 'clock' && currentView === 'years'"
-      :selected-dates="selectedDates.single.month ? selectedDates.single : today"
-      :available-years="availableYears"
-      :dir="providerData.direction.value"
-      @clicked="handleYearClick"
-      :locale="locale"
-    >
+    <grid-years v-if="pickerType !== 'clock' && currentView === 'years'"
+      :selected-dates="selectedDates.single.month ? selectedDates.single : today" :available-years="availableYears"
+      :dir="providerData.direction.value" @clicked="handleYearClick" :locale="locale">
       <template #year-cell="slotProps">
         <slot name="year-cell" v-bind="slotProps" />
       </template>

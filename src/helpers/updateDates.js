@@ -1,4 +1,4 @@
-import isSameDate from "@/utils/isSameDate";
+import { isSameDate } from "@/utils/isSameDate";
 
 export const updateSingle = (cell, date) => {
   if (cell.current && cell.enable) date.single = { ...date.single, ...cell };
